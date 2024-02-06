@@ -1,3 +1,12 @@
 {
-  "name": "hardhat-project"
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.8.1",
+    "@openzeppelin/contracts-upgradeable": "^4.9.2",
+    "@openzeppelin/merkle-tree": "^1.0.2",
+    "dotenv": "^16.4.1",
+    "hardhat": "^2.19.5"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0"
+  }
 }

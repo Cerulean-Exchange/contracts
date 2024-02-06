@@ -1,13 +1,3 @@
-# Sample Hardhat Project
+# Contracts-Migration
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
-
-Try running some of the following tasks:
-
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.js
-```
+Notion con modificaciones: https://just-bard-8f3.notion.site/Main-Contracts-Info-c81a7b32501a4199bc1e255da4f9a532
