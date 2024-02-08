@@ -30,34 +30,34 @@ contract PairTest is BaseTest {
         amounts[0] = 2e25;
         amounts[1] = 1e25;
         amounts[2] = 1e25;
-        mintVara(owners, amounts);
+        mintViri(owners, amounts);
         mintLR(owners, amounts);
 
         VeArtProxy artProxy = new VeArtProxy();
         VotingEscrow implEscrow = new VotingEscrow();
-        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VARA), address(artProxy)));
+        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VIRI), address(artProxy)));
         escrow = VotingEscrow(address(proxy));
     }
 
     function createLock() public {
         deployPairCoins();
 
-        VARA.approve(address(escrow), 5e17);
+        VIRI.approve(address(escrow), 5e17);
         escrow.create_lock(5e17, 4 * 365 * 86400);
         vm.roll(block.number + 1); // fwd 1 block because escrow.balanceOfNFT() returns 0 in same block
         assertGt(escrow.balanceOfNFT(1), 495063075414519385);
-        assertEq(VARA.balanceOf(address(escrow)), 5e17);
+        assertEq(VIRI.balanceOf(address(escrow)), 5e17);
     }
 
     function increaseLock() public {
         createLock();
 
-        VARA.approve(address(escrow), 5e17);
+        VIRI.approve(address(escrow), 5e17);
         escrow.increase_amount(1, 5e17);
         vm.expectRevert(abi.encodePacked('Can only increase lock duration'));
         escrow.increase_unlock_time(1, 4 * 365 * 86400);
         assertGt(escrow.balanceOfNFT(1), 995063075414519385);
-        assertEq(VARA.balanceOf(address(escrow)), TOKEN_1);
+        assertEq(VIRI.balanceOf(address(escrow)), TOKEN_1);
     }
 
     function votingEscrowViews() public {
@@ -68,7 +68,7 @@ contract PairTest is BaseTest {
         assertEq(escrow.totalSupplyAt(block_), escrow.totalSupply());
 
         assertGt(escrow.balanceOfNFT(1), 995063075414519385);
-        assertEq(VARA.balanceOf(address(escrow)), TOKEN_1);
+        assertEq(VIRI.balanceOf(address(escrow)), TOKEN_1);
     }
 
     function stealNFT() public {
@@ -85,10 +85,10 @@ contract PairTest is BaseTest {
     function votingEscrowMerge() public {
         stealNFT();
 
-        VARA.approve(address(escrow), TOKEN_1);
+        VIRI.approve(address(escrow), TOKEN_1);
         escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
         assertGt(escrow.balanceOfNFT(2), 995063075414519385);
-        assertEq(VARA.balanceOf(address(escrow)), 2 * TOKEN_1);
+        assertEq(VIRI.balanceOf(address(escrow)), 2 * TOKEN_1);
         console2.log(escrow.totalSupply());
         escrow.merge(2, 1);
         console2.log(escrow.totalSupply());
@@ -97,10 +97,10 @@ contract PairTest is BaseTest {
         (int256 id, uint256 amount) = escrow.locked(2);
         assertEq(amount, 0);
         assertEq(escrow.ownerOf(2), address(0));
-        VARA.approve(address(escrow), TOKEN_1);
+        VIRI.approve(address(escrow), TOKEN_1);
         escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
         assertGt(escrow.balanceOfNFT(3), 995063075414519385);
-        assertEq(VARA.balanceOf(address(escrow)), 3 * TOKEN_1);
+        assertEq(VIRI.balanceOf(address(escrow)), 3 * TOKEN_1);
         console2.log(escrow.totalSupply());
         escrow.merge(3, 1);
         console2.log(escrow.totalSupply());
@@ -292,12 +292,12 @@ contract PairTest is BaseTest {
         minter = Minter(address(proxy));
 
         distributor.setDepositor(address(minter));
-        VARA.setMinter(address(minter));
+        VIRI.setMinter(address(minter));
         address[] memory tokens = new address[](5);
         tokens[0] = address(USDC);
         tokens[1] = address(FRAX);
         tokens[2] = address(DAI);
-        tokens[3] = address(VARA);
+        tokens[3] = address(VIRI);
         tokens[4] = address(LR);
         voter.init(tokens, address(minter));
     }
@@ -305,13 +305,13 @@ contract PairTest is BaseTest {
     function deployPairFactoryGauge() public {
         deployMinter();
 
-        VARA.approve(address(gaugeFactory), 15 * TOKEN_100K);
+        VIRI.approve(address(gaugeFactory), 15 * TOKEN_100K);
         voter.createGauge(address(pair));
         voter.createGauge(address(pair2));
         voter.createGauge(address(pair3));
         assertFalse(voter.gauges(address(pair)) == address(0));
 
-        staking = new TestStakingRewards(address(pair), address(VARA));
+        staking = new TestStakingRewards(address(pair), address(VIRI));
 
         address gaugeAddress = voter.gauges(address(pair));
         address bribeAddress = voter.internal_bribes(gaugeAddress);
@@ -390,17 +390,17 @@ contract PairTest is BaseTest {
     function addGaugeAndBribeRewards() public {
         withdrawGaugeStake();
 
-        VARA.approve(address(gauge), PAIR_1);
-        VARA.approve(address(xbribe), PAIR_1);
-        VARA.approve(address(staking), PAIR_1);
+        VIRI.approve(address(gauge), PAIR_1);
+        VIRI.approve(address(xbribe), PAIR_1);
+        VIRI.approve(address(staking), PAIR_1);
 
-        gauge.notifyRewardAmount(address(VARA), PAIR_1);
-        xbribe.notifyRewardAmount(address(VARA), PAIR_1);
+        gauge.notifyRewardAmount(address(VIRI), PAIR_1);
+        xbribe.notifyRewardAmount(address(VIRI), PAIR_1);
         staking.notifyRewardAmount(PAIR_1);
 
-        assertEq(gauge.rewardRate(address(VARA)), 1653);
+        assertEq(gauge.rewardRate(address(VIRI)), 1653);
         // no reward rate, all or nothing
-        // assertEq(xbribe.rewardRate(address(VARA)), 1653);
+        // assertEq(xbribe.rewardRate(address(VIRI)), 1653);
         assertEq(staking.rewardRate(), 1653);
     }
 
@@ -435,11 +435,11 @@ contract PairTest is BaseTest {
     function createLock2() public {
         voterPokeSelf();
 
-        VARA.approve(address(escrow), TOKEN_1);
+        VIRI.approve(address(escrow), TOKEN_1);
         escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
         vm.warp(block.timestamp + 1);
         assertGt(escrow.balanceOfNFT(1), 995063075414519385);
-        assertEq(VARA.balanceOf(address(escrow)), 4 * TOKEN_1);
+        assertEq(VIRI.balanceOf(address(escrow)), 4 * TOKEN_1);
     }
 
     function voteHacking() public {
@@ -531,7 +531,7 @@ contract PairTest is BaseTest {
     function gaugeDistributeBasedOnVoting() public {
         gaugePokeHacking3();
 
-        VARA.approve(address(voter), PAIR_1);
+        VIRI.approve(address(voter), PAIR_1);
         voter.notifyRewardAmount(PAIR_1);
         voter.updateAll();
         voter.distro();
@@ -541,7 +541,7 @@ contract PairTest is BaseTest {
         gaugeDistributeBasedOnVoting();
 
         address[] memory rewards = new address[](1);
-        rewards[0] = address(VARA);
+        rewards[0] = address(VIRI);
         bribe.getReward(1, rewards);
         vm.warp(block.timestamp + 691200);
         vm.roll(block.number + 1);
@@ -635,10 +635,10 @@ contract PairTest is BaseTest {
         minter.init(claimants, amounts, TOKEN_1);
         minter.update_period();
         voter.updateGauge(address(gauge));
-        console2.log(VARA.balanceOf(address(distributor)));
+        console2.log(VIRI.balanceOf(address(distributor)));
         console2.log(distributor.claimable(1));
         uint256 claimable = voter.claimable(address(gauge));
-        VARA.approve(address(staking), claimable);
+        VIRI.approve(address(staking), claimable);
         staking.notifyRewardAmount(claimable);
         voter.distro();
         vm.warp(block.timestamp + 1800);
@@ -658,25 +658,25 @@ contract PairTest is BaseTest {
         gauge.deposit(PAIR_1, 0);
         staking.getReward();
         vm.warp(block.timestamp + 1);
-        uint256 before = VARA.balanceOf(address(owner));
+        uint256 before = VIRI.balanceOf(address(owner));
         vm.warp(block.timestamp + 1);
-        gauge.batchRewardPerToken(address(VARA), 200);
+        gauge.batchRewardPerToken(address(VIRI), 200);
         vm.warp(block.timestamp + 1);
-        gauge.batchRewardPerToken(address(VARA), 200);
+        gauge.batchRewardPerToken(address(VIRI), 200);
         vm.warp(block.timestamp + 1);
-        gauge.batchRewardPerToken(address(VARA), 200);
+        gauge.batchRewardPerToken(address(VIRI), 200);
         vm.warp(block.timestamp + 1);
-        gauge.batchRewardPerToken(address(VARA), 200);
+        gauge.batchRewardPerToken(address(VIRI), 200);
         vm.warp(block.timestamp + 1);
-        gauge.batchRewardPerToken(address(VARA), 200);
+        gauge.batchRewardPerToken(address(VIRI), 200);
         vm.warp(block.timestamp + 1);
-        uint256 earned = gauge.earned(address(VARA), address(owner));
+        uint256 earned = gauge.earned(address(VIRI), address(owner));
         address[] memory rewards = new address[](1);
-        rewards[0] = address(VARA);
+        rewards[0] = address(VIRI);
         vm.warp(block.timestamp + 1);
         gauge.getReward(address(owner), rewards);
         vm.warp(block.timestamp + 1);
-        uint256 after_ = VARA.balanceOf(address(owner));
+        uint256 after_ = VIRI.balanceOf(address(owner));
         uint256 received = after_ - before;
 
         gauge.withdraw(gauge.balanceOf(address(owner)));
@@ -713,7 +713,7 @@ contract PairTest is BaseTest {
         gaugeClaimRewards();
 
         address[] memory rewards = new address[](1);
-        rewards[0] = address(VARA);
+        rewards[0] = address(VIRI);
         pair.approve(address(gauge), PAIR_1);
         gauge.deposit(PAIR_1, 1);
         gauge.getReward(address(owner), rewards);
@@ -792,16 +792,16 @@ contract PairTest is BaseTest {
         owner3.approve(address(pair), address(gauge), PAIR_1);
         owner3.deposit(address(gauge), PAIR_1, 0);
         owner3.withdrawGauge(address(gauge), gauge.balanceOf(address(owner3)));
-        gauge.batchRewardPerToken(address(VARA), 200);
+        gauge.batchRewardPerToken(address(VIRI), 200);
         owner3.approve(address(pair), address(gauge), PAIR_1);
         owner3.deposit(address(gauge), PAIR_1, 0);
-        gauge.batchRewardPerToken(address(VARA), 200);
-        gauge.batchRewardPerToken(address(VARA), 200);
-        gauge.batchRewardPerToken(address(VARA), 200);
-        gauge.batchRewardPerToken(address(VARA), 200);
+        gauge.batchRewardPerToken(address(VIRI), 200);
+        gauge.batchRewardPerToken(address(VIRI), 200);
+        gauge.batchRewardPerToken(address(VIRI), 200);
+        gauge.batchRewardPerToken(address(VIRI), 200);
 
         address[] memory rewards = new address[](1);
-        rewards[0] = address(VARA);
+        rewards[0] = address(VIRI);
         owner3.getGaugeReward(address(gauge), address(owner3), rewards);
         owner3.withdrawGauge(address(gauge), gauge.balanceOf(address(owner3)));
         owner3.approve(address(pair), address(gauge), PAIR_1);
@@ -829,7 +829,7 @@ contract PairTest is BaseTest {
         minter.update_period();
         voter.updateGauge(address(gauge));
         uint256 claimable = voter.claimable(address(gauge));
-        VARA.approve(address(staking), claimable);
+        VIRI.approve(address(staking), claimable);
         staking.notifyRewardAmount(claimable);
         address[] memory gauges = new address[](1);
         gauges[0] = address(gauge);
@@ -837,30 +837,30 @@ contract PairTest is BaseTest {
         voter.distro();
         address[][] memory tokens = new address[][](1);
         address[] memory token = new address[](1);
-        token[0] = address(VARA);
+        token[0] = address(VIRI);
         tokens[0] = token;
         voter.claimRewards(gauges, tokens);
-        assertEq(gauge.rewardRate(address(VARA)), staking.rewardRate());
-        console2.log(gauge.rewardPerTokenStored(address(VARA)));
+        assertEq(gauge.rewardRate(address(VIRI)), staking.rewardRate());
+        console2.log(gauge.rewardPerTokenStored(address(VIRI)));
     }
 
     function gaugeClaimRewardsOwner3NextCycle() public {
         minterMint2();
 
         owner3.withdrawGauge(address(gauge), gauge.balanceOf(address(owner3)));
-        console2.log(gauge.rewardPerTokenStored(address(VARA)));
+        console2.log(gauge.rewardPerTokenStored(address(VIRI)));
         owner3.approve(address(pair), address(gauge), PAIR_1);
         owner3.deposit(address(gauge), PAIR_1, 0);
-        uint256 before = VARA.balanceOf(address(owner3));
+        uint256 before = VIRI.balanceOf(address(owner3));
         vm.warp(block.timestamp + 1);
-        // uint256 earned = gauge.earned(address(VARA), address(owner3));
+        // uint256 earned = gauge.earned(address(VIRI), address(owner3));
         address[] memory rewards = new address[](1);
-        rewards[0] = address(VARA);
+        rewards[0] = address(VIRI);
         owner3.getGaugeReward(address(gauge), address(owner3), rewards);
-        uint256 after_ = VARA.balanceOf(address(owner3));
+        uint256 after_ = VIRI.balanceOf(address(owner3));
         uint256 received = after_ - before;
         assertGt(received, 0);
-        console2.log(gauge.rewardPerTokenStored(address(VARA)));
+        console2.log(gauge.rewardPerTokenStored(address(VIRI)));
 
         owner3.withdrawGauge(address(gauge), gauge.balanceOf(address(owner)));
         owner3.approve(address(pair), address(gauge), PAIR_1);
@@ -894,8 +894,8 @@ contract PairTest is BaseTest {
 
         pair.approve(address(gauge), PAIR_1);
         gauge.deposit(PAIR_1, 0);
-        VARA.approve(address(gauge), VARA.balanceOf(address(owner)));
-        gauge.notifyRewardAmount(address(VARA), VARA.balanceOf(address(owner)));
+        VIRI.approve(address(gauge), VIRI.balanceOf(address(owner)));
+        gauge.notifyRewardAmount(address(VIRI), VIRI.balanceOf(address(owner)));
 
         vm.warp(block.timestamp + 604800);
         vm.roll(block.number + 1);

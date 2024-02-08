@@ -18,12 +18,12 @@ import "contracts/PairFees.sol";
 import "contracts/RewardsDistributor.sol";
 import "contracts/Router.sol";
 import "contracts/Router2.sol";
-import "contracts/Vara.sol";
-import "contracts/VaraLibrary.sol";
+import "contracts/Viri.sol";
+import "contracts/ViriLibrary.sol";
 import "contracts/Voter.sol";
 import "contracts/VeArtProxy.sol";
 import "contracts/VotingEscrow.sol";
-import "contracts/VaraGovernor.sol";
+import "contracts/ViriGovernor.sol";
 import "utils/TestOwner.sol";
 import "utils/TestStakingRewards.sol";
 import "utils/TestToken.sol";
@@ -37,7 +37,7 @@ contract veSplitterTest is Test {
     TestWETH WETH;
     MockERC20 DAI;
     uint TOKEN_100 = 100 * 1e18;
-    Vara vara;
+    Viri viri;
     GaugeFactory gaugeFactory;
     BribeFactory bribeFactory;
     PairFactory pairFactory;
@@ -47,11 +47,11 @@ contract veSplitterTest is Test {
     RewardsDistributor distributor;
     Voter voter;
     Minter minter;
-    VaraGovernor governor;
+    ViriGovernor governor;
     Pair pool_eth_dai;
-    Pair pool_eth_vara;
+    Pair pool_eth_viri;
     address[] whitelist;
-    Gauge gauge_eth_vara;
+    Gauge gauge_eth_viri;
 
     TransparentUpgradeableProxy proxy;
     ProxyAdmin admin;
@@ -62,9 +62,9 @@ contract veSplitterTest is Test {
         console.logAddress(address(this));
         admin = new ProxyAdmin();
 
-        Vara implVara = new Vara();
-        proxy = new TransparentUpgradeableProxy(address(implVara), address(admin), abi.encodeWithSelector(Vara.initialize.selector));
-        vara = Vara(address(proxy));
+        Viri implViri = new Viri();
+        proxy = new TransparentUpgradeableProxy(address(implViri), address(admin), abi.encodeWithSelector(Viri.initialize.selector));
+        viri = Viri(address(proxy));
 
         Gauge implGauge = new Gauge();
         GaugeFactory implGaugeFactory = new GaugeFactory();
@@ -92,7 +92,7 @@ contract veSplitterTest is Test {
         artProxy = new VeArtProxy();
 
         VotingEscrow implEscrow = new VotingEscrow();
-        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(vara), address(artProxy)));
+        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(viri), address(artProxy)));
         escrow = VotingEscrow(address(proxy));
 
         RewardsDistributor implDistributor = new RewardsDistributor();
@@ -107,13 +107,13 @@ contract veSplitterTest is Test {
         proxy = new TransparentUpgradeableProxy(address(implMinter), address(admin), abi.encodeWithSelector(Minter.initialize.selector, address(voter), address(escrow), address(distributor)));
         minter = Minter(address(proxy));
 
-        VaraGovernor implVaraGovernor = new VaraGovernor();
-        proxy = new TransparentUpgradeableProxy(address(implVaraGovernor), address(admin), abi.encodeWithSelector(VaraGovernor.initialize.selector, escrow));
-        governor = VaraGovernor(payable(address(proxy)));
+        ViriGovernor implViriGovernor = new ViriGovernor();
+        proxy = new TransparentUpgradeableProxy(address(implViriGovernor), address(admin), abi.encodeWithSelector(ViriGovernor.initialize.selector, escrow));
+        governor = ViriGovernor(payable(address(proxy)));
 
         // ---
-        vara.initialMint(address(this));
-        vara.setMinter(address(minter));
+        viri.initialMint(address(this));
+        viri.setMinter(address(minter));
         escrow.setVoter(address(voter));
         escrow.setTeam(address(this));
         voter.setGovernor(address(this));
@@ -122,7 +122,7 @@ contract veSplitterTest is Test {
         governor.setTeam(address(this));
 
 
-        whitelist.push(address(vara));
+        whitelist.push(address(viri));
         whitelist.push(address(DAI));
         voter.init(whitelist, address(minter));
         //minter.init([], [], 0);
@@ -131,13 +131,13 @@ contract veSplitterTest is Test {
         // ---
         DAI.mint(address(this), TOKEN_100);
         DAI.approve(address(router), TOKEN_100);
-        vara.approve(address(router), TOKEN_100);
+        viri.approve(address(router), TOKEN_100);
         router.addLiquidityETH{value : TOKEN_100}(address(DAI), false, TOKEN_100, 0, 0, address(this), block.timestamp);
         
-        router.addLiquidityETH{value : TOKEN_100}(address(vara), false, TOKEN_100, 0, 0, address(this), block.timestamp);
+        router.addLiquidityETH{value : TOKEN_100}(address(viri), false, TOKEN_100, 0, 0, address(this), block.timestamp);
 
         pool_eth_dai = Pair(pairFactory.getPair(address(WETH), address(DAI), false));
-        pool_eth_vara = Pair(pairFactory.getPair(address(WETH), address(vara), false));
+        pool_eth_viri = Pair(pairFactory.getPair(address(WETH), address(viri), false));
 
         address[] memory emptyAddresses = new address[](1);
         emptyAddresses[0] = address(this);
@@ -153,14 +153,14 @@ contract veSplitterTest is Test {
         vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
 
-        gauge_eth_vara = Gauge(voter.createGauge(address(pool_eth_vara)));
+        gauge_eth_viri = Gauge(voter.createGauge(address(pool_eth_viri)));
         vm.roll(block.number + 1);
         uint duration = 4 * 365 * 86400;
-        vara.approve(address(escrow), vara.balanceOf(address(this)));
-        tokenId = escrow.create_lock(vara.balanceOf(address(this)), duration);
+        viri.approve(address(escrow), viri.balanceOf(address(this)));
+        tokenId = escrow.create_lock(viri.balanceOf(address(this)), duration);
 
         address[] memory pools = new address[](1);
-        pools[0] = address(pool_eth_vara);
+        pools[0] = address(pool_eth_viri);
         uint256[] memory locks = new uint256[](1);
         locks[0] = 5000;
 
@@ -183,8 +183,8 @@ contract veSplitterTest is Test {
     function testExec() public {
         runEpochs();
 
-        pool_eth_vara.approve(address(gauge_eth_vara), pool_eth_vara.balanceOf(address(this)));
-        gauge_eth_vara.depositAll(tokenId);
+        pool_eth_viri.approve(address(gauge_eth_viri), pool_eth_viri.balanceOf(address(this)));
+        gauge_eth_viri.depositAll(tokenId);
 
         uint[] memory amounts = new uint[](2);
         amounts[0] = 1 ether;
@@ -199,7 +199,7 @@ contract veSplitterTest is Test {
         main.split(amounts, locks, tokenId);
 
         voter.reset(tokenId);
-        gauge_eth_vara.withdrawAll();
+        gauge_eth_viri.withdrawAll();
 
         vm.expectRevert(abi.encodePacked(veSplitter.NftNotApproved.selector));
         main.split(amounts, locks, tokenId);
@@ -221,12 +221,12 @@ contract veSplitterTest is Test {
         vm.warp(block.timestamp + duration + 1);
         vm.roll(block.number + 1);
 
-        uint balanceOfTokenBefore = vara.balanceOf(address(this));
+        uint balanceOfTokenBefore = viri.balanceOf(address(this));
         main.split(amounts, locks, tokenId);
 
         uint balanceOfNft = escrow.balanceOf(address(this));
         assert( balanceOfNft == 3 );
-        uint balanceOfTokenAfter = vara.balanceOf(address(this));
+        uint balanceOfTokenAfter = viri.balanceOf(address(this));
         uint tokensReceived = balanceOfTokenAfter - balanceOfTokenBefore;
         assert( tokensReceived == 39999897000000000000000000);
 

@@ -10,7 +10,7 @@ import {L2GovernorCountingSimple} from "contracts/governance/L2GovernorCountingS
 import {L2GovernorVotes} from "contracts/governance/L2GovernorVotes.sol";
 import {L2GovernorVotesQuorumFraction} from "contracts/governance/L2GovernorVotesQuorumFraction.sol";
 
-contract VaraGovernor is
+contract ViriGovernor is
     Initializable,
     L2Governor,
     L2GovernorCountingSimple,
@@ -27,7 +27,7 @@ contract VaraGovernor is
     }
 
     function initialize(IVotes _ve) external initializer {
-        __L2Governor_init("Vara Governor");
+        __L2Governor_init("Viri Governor");
         __L2GovernorVotes_init(_ve);
         __L2GovernorVotesQuorumFraction_init(4); // 4%
         team = msg.sender;

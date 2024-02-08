@@ -28,11 +28,11 @@ contract WrappedExternalBribesTest is BaseTest {
         amounts[0] = 2e25;
         amounts[1] = 1e25;
         amounts[2] = 1e25;
-        mintVara(owners, amounts);
+        mintViri(owners, amounts);
         mintLR(owners, amounts);
         VeArtProxy artProxy = new VeArtProxy();
         VotingEscrow implEscrow = new VotingEscrow();
-        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VARA), address(artProxy)));
+        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VIRI), address(artProxy)));
         escrow = VotingEscrow(address(proxy));
 
         deployPairFactoryAndRouter();
@@ -70,12 +70,12 @@ contract WrappedExternalBribesTest is BaseTest {
         minter = Minter(address(proxy));
 
         distributor.setDepositor(address(minter));
-        VARA.setMinter(address(minter));
+        VIRI.setMinter(address(minter));
         address[] memory tokens = new address[](5);
         tokens[0] = address(USDC);
         tokens[1] = address(FRAX);
         tokens[2] = address(DAI);
-        tokens[3] = address(VARA);
+        tokens[3] = address(VIRI);
         tokens[4] = address(LR);
         voter.init(tokens, address(minter));
 
@@ -90,10 +90,10 @@ contract WrappedExternalBribesTest is BaseTest {
         wxbribe = WrappedExternalBribe(wxbribeFactory.createBribe(address(xbribe)));
 
         // ve
-        VARA.approve(address(escrow), TOKEN_1);
+        VIRI.approve(address(escrow), TOKEN_1);
         escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
         vm.startPrank(address(owner2));
-        VARA.approve(address(escrow), TOKEN_1);
+        VIRI.approve(address(escrow), TOKEN_1);
         escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
         vm.warp(block.timestamp + 1);
         vm.stopPrank();

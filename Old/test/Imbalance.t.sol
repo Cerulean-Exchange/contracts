@@ -18,31 +18,31 @@ contract ImbalanceTest is BaseTest {
         mintStables();
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = 1e25;
-        mintVara(owners, amounts);
+        mintViri(owners, amounts);
         VeArtProxy artProxy = new VeArtProxy();
 
         VotingEscrow implEscrow = new VotingEscrow();
-        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VARA), address(artProxy)));
+        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VIRI), address(artProxy)));
         escrow = VotingEscrow(address(proxy));
     }
 
     function createLock() public {
         deployBaseCoins();
 
-        VARA.approve(address(escrow), TOKEN_1);
+        VIRI.approve(address(escrow), TOKEN_1);
         escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
         vm.warp(1);
         assertGt(escrow.balanceOfNFT(1), 995063075414519385);
-        assertEq(VARA.balanceOf(address(escrow)), TOKEN_1);
+        assertEq(VIRI.balanceOf(address(escrow)), TOKEN_1);
     }
 
     function votingEscrowMerge() public {
         createLock();
 
-        VARA.approve(address(escrow), TOKEN_1);
+        VIRI.approve(address(escrow), TOKEN_1);
         escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
         assertGt(escrow.balanceOfNFT(2), 995063075414519385);
-        assertEq(VARA.balanceOf(address(escrow)), 2 * TOKEN_1);
+        assertEq(VIRI.balanceOf(address(escrow)), 2 * TOKEN_1);
         escrow.merge(2, 1);
         assertGt(escrow.balanceOfNFT(1), 1990039602248405587);
         assertEq(escrow.balanceOfNFT(2), 0);
@@ -103,7 +103,7 @@ contract ImbalanceTest is BaseTest {
         tokens[0] = address(USDC);
         tokens[1] = address(FRAX);
         tokens[2] = address(DAI);
-        tokens[3] = address(VARA);
+        tokens[3] = address(VIRI);
         voter.init(tokens, address(owner));
 
         assertEq(voter.length(), 0);
@@ -112,7 +112,7 @@ contract ImbalanceTest is BaseTest {
     function deployPairFactoryGauge() public {
         deployVoter();
 
-        VARA.approve(address(gaugeFactory), 5 * TOKEN_100K);
+        VIRI.approve(address(gaugeFactory), 5 * TOKEN_100K);
         voter.createGauge(address(pair3));
         assertFalse(voter.gauges(address(pair3)) == address(0));
 

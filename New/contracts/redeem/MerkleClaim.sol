@@ -4,17 +4,17 @@ pragma solidity 0.8.13;
 /// ============ Imports ============
 
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
-import {IVara} from "contracts/interfaces/IVara.sol";
+import {IViri} from "contracts/interfaces/IViri.sol";
 import {MerkleProofUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/MerkleProofUpgradeable.sol"; // OZ: MerkleProof
 
 /// @title MerkleClaim
-/// @notice Claims VARA for members of a merkle tree
+/// @notice Claims VIRI for members of a merkle tree
 /// @author Modified from Merkle Airdrop Starter (https://github.com/Anish-Agnihotri/merkle-airdrop-starter/blob/master/contracts/src/MerkleClaimERC20.sol)
 contract MerkleClaim is Initializable {
     /// ============ Immutable storage ============
 
-    /// @notice VARA token to claim
-    IVara public VARA;
+    /// @notice VIRI token to claim
+    IViri public VIRI;
     /// @notice ERC20-claimee inclusion root
     bytes32 public merkleRoot;
 
@@ -26,13 +26,13 @@ contract MerkleClaim is Initializable {
     /// ============ Constructor ============
 
     /// @notice Creates a new MerkleClaim contract
-    /// @param _vara address
+    /// @param _viri address
     /// @param _merkleRoot of claimees
     function initialize(
-        address _vara, 
+        address _viri, 
         bytes32 _merkleRoot
     ) external initializer {
-        VARA = IVara(_vara);
+        VIRI = IViri(_viri);
         merkleRoot = _merkleRoot;
     }
 
@@ -64,7 +64,7 @@ contract MerkleClaim is Initializable {
         hasClaimed[msg.sender] = true;
 
         // Claim tokens for address
-        require(VARA.claim(msg.sender, amount), "CLAIM_FAILED");
+        require(VIRI.claim(msg.sender, amount), "CLAIM_FAILED");
 
         // Emit claim event
         emit Claim(msg.sender, amount);
