@@ -101,7 +101,7 @@ contract BulkSenderTest is Test {
     }
 
 
-    function testSendKavaToMany() public {
+    function testSendCoreToMany() public {
         uint total = 200;
         uint amount = 0.1 ether;
         uint value = amount * total;
@@ -125,7 +125,7 @@ contract BulkSenderTest is Test {
         invalidValue[0] = 0;
         invalidValue[1] = 0;
 
-        sender.sendKavaToMany{value: value}(addresses, values);
+        sender.sendCoreToMany{value: value}(addresses, values);
 
         for( uint i = 0 ; i < total ; i ++ ){
             assertEq(address(addresses[i]).balance, values[i]);

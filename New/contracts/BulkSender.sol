@@ -16,11 +16,11 @@ contract BulkSender {
     error FailedToSendValue();
 
     /**
-     * @dev Use this function to send specific amount of kava to a list of users.
+     * @dev Use this function to send specific amount of core to a list of users.
      * @param recipients: the list of users addresses that will receive the token.
      * @param amount: the amount to be sent to each user.
      */
-    function sendKavaToMany(address[] memory recipients, uint[] memory amount) external payable{
+    function sendCoreToMany(address[] memory recipients, uint[] memory amount) external payable{
 
         if( recipients.length == 0 || recipients.length != amount.length )
             revert InvalidRecipients();
