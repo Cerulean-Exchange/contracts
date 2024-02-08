@@ -1,9 +1,9 @@
 pragma solidity 0.8.13;
 
 import "./BaseTest.sol";
-import "contracts/VaraGovernor.sol";
+import "contracts/ViriGovernor.sol";
 
-contract VaraGovernorTest is BaseTest {
+contract ViriGovernorTest is BaseTest {
     VotingEscrow escrow;
     GaugeFactory gaugeFactory;
     BribeFactory bribeFactory;
@@ -12,7 +12,7 @@ contract VaraGovernorTest is BaseTest {
     Minter minter;
     Gauge gauge;
     InternalBribe bribe;
-    VaraGovernor governor;
+    ViriGovernor governor;
 
     function setUp() public {
         deployProxyAdmin();
@@ -23,21 +23,21 @@ contract VaraGovernorTest is BaseTest {
         amounts[0] = 2e25;
         amounts[1] = 1e25;
         amounts[2] = 1e25;
-        mintVara(owners, amounts);
+        mintViri(owners, amounts);
 
         VeArtProxy artProxy = new VeArtProxy();
 
         VotingEscrow implEscrow = new VotingEscrow();
-        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VARA), address(artProxy)));
+        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VIRI), address(artProxy)));
         escrow = VotingEscrow(address(proxy));
 
-        VARA.approve(address(escrow), 97 * TOKEN_1);
+        VIRI.approve(address(escrow), 97 * TOKEN_1);
         escrow.create_lock(97 * TOKEN_1, 4 * 365 * 86400);
         vm.roll(block.number + 1);
 
         // owner2 owns less than quorum, 3%
         vm.startPrank(address(owner2));
-        VARA.approve(address(escrow), 3 * TOKEN_1);
+        VIRI.approve(address(escrow), 3 * TOKEN_1);
         escrow.create_lock(3 * TOKEN_1, 4 * 365 * 86400);
         vm.roll(block.number + 1);
         vm.stopPrank();
@@ -74,18 +74,18 @@ contract VaraGovernorTest is BaseTest {
         minter = Minter(address(proxy));
         
         distributor.setDepositor(address(minter));
-        VARA.setMinter(address(minter));
+        VIRI.setMinter(address(minter));
 
-        VARA.approve(address(gaugeFactory), 15 * TOKEN_100K);
+        VIRI.approve(address(gaugeFactory), 15 * TOKEN_100K);
         voter.createGauge(address(pair));
         address gaugeAddress = voter.gauges(address(pair));
         address bribeAddress = voter.internal_bribes(gaugeAddress);
         gauge = Gauge(gaugeAddress);
         bribe = InternalBribe(bribeAddress);
 
-        VaraGovernor implVaraGovernor = new VaraGovernor();
-        proxy = new TransparentUpgradeableProxy(address(implVaraGovernor), address(admin), abi.encodeWithSelector(VaraGovernor.initialize.selector, escrow));
-        governor = VaraGovernor(payable(address(proxy)));
+        ViriGovernor implViriGovernor = new ViriGovernor();
+        proxy = new TransparentUpgradeableProxy(address(implViriGovernor), address(admin), abi.encodeWithSelector(ViriGovernor.initialize.selector, escrow));
+        governor = ViriGovernor(payable(address(proxy)));
         voter.setGovernor(address(governor));
     }
 
@@ -111,10 +111,10 @@ contract VaraGovernorTest is BaseTest {
         vm.stopPrank();
     }
 
-    function testVeVaraMergesAutoDelegates() public {
+    function testVeViriMergesAutoDelegates() public {
         // owner2 + owner3 > quorum
         vm.startPrank(address(owner3));
-        VARA.approve(address(escrow), 3 * TOKEN_1);
+        VIRI.approve(address(escrow), 3 * TOKEN_1);
         escrow.create_lock(3 * TOKEN_1, 4 * 365 * 86400);
         vm.roll(block.number + 1);
         uint256 pre2 = escrow.getVotes(address(owner2));

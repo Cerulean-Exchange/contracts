@@ -12,7 +12,7 @@ contract OracleTest is BaseTest {
         mintStables();
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = 1e25;
-        mintVara(owners, amounts);
+        mintViri(owners, amounts);
     }
 
     function confirmTokensForFraxUsdc() public {

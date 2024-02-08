@@ -13,16 +13,16 @@ contract VotingEscrowTest is BaseTest {
         mintStables();
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = 1e21;
-        mintVara(owners, amounts);
+        mintViri(owners, amounts);
 
         VeArtProxy artProxy = new VeArtProxy();
         VotingEscrow implEscrow = new VotingEscrow();
-        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VARA), address(artProxy)));
+        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VIRI), address(artProxy)));
         escrow = VotingEscrow(address(proxy));
     }
 
     function testCreateLock() public {
-        VARA.approve(address(escrow), 1e21);
+        VIRI.approve(address(escrow), 1e21);
         uint256 lockDuration = 7 * 24 * 3600; // 1 week
 
         // Balance should be zero before and 1 after creating the lock
@@ -33,7 +33,7 @@ contract VotingEscrowTest is BaseTest {
     }
 
     function testCreateLockOutsideAllowedZones() public {
-        VARA.approve(address(escrow), 1e21);
+        VIRI.approve(address(escrow), 1e21);
         uint256 oneWeek = 7 * 24 * 3600;
         uint256 fourYears = 4 * 365 * 24 * 3600;
         vm.expectRevert(abi.encodePacked('Voting lock can be 4 years max'));
@@ -41,7 +41,7 @@ contract VotingEscrowTest is BaseTest {
     }
 
     function testWithdraw() public {
-        VARA.approve(address(escrow), 1e21);
+        VIRI.approve(address(escrow), 1e21);
         uint256 lockDuration = 7 * 24 * 3600; // 1 week
         escrow.create_lock(1e21, lockDuration);
 
@@ -54,7 +54,7 @@ contract VotingEscrowTest is BaseTest {
         vm.roll(block.number + 1); // mine the next block
         escrow.withdraw(tokenId);
 
-        assertEq(VARA.balanceOf(address(owner)), 1e21);
+        assertEq(VIRI.balanceOf(address(owner)), 1e21);
         // Check that the NFT is burnt
         assertEq(escrow.balanceOfNFT(tokenId), 0);
         assertEq(escrow.ownerOf(tokenId), address(0));
@@ -64,7 +64,7 @@ contract VotingEscrowTest is BaseTest {
         // tokenURI should not work for non-existent token ids
         vm.expectRevert(abi.encodePacked("Query for nonexistent token"));
         escrow.tokenURI(999);
-        VARA.approve(address(escrow), 1e21);
+        VIRI.approve(address(escrow), 1e21);
         uint256 lockDuration = 7 * 24 * 3600; // 1 week
         escrow.create_lock(1e21, lockDuration);
 

@@ -25,13 +25,13 @@ contract KillGaugesTest is BaseTest {
     amounts[0] = 2e25;
     amounts[1] = 1e25;
     amounts[2] = 1e25;
-    mintVara(owners, amounts);
+    mintViri(owners, amounts);
     VeArtProxy artProxy = new VeArtProxy();
     VotingEscrow implEscrow = new VotingEscrow();
-    proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VARA), address(artProxy)));
+    proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VIRI), address(artProxy)));
     escrow = VotingEscrow(address(proxy));
 
-    VARA.approve(address(escrow), 100 * TOKEN_1);
+    VIRI.approve(address(escrow), 100 * TOKEN_1);
     escrow.create_lock(100 * TOKEN_1, 4 * 365 * 86400);
     vm.roll(block.number + 1);
 
@@ -65,20 +65,20 @@ contract KillGaugesTest is BaseTest {
     minter = Minter(address(proxy));
 
     distributor.setDepositor(address(minter));
-    VARA.setMinter(address(minter));
+    VIRI.setMinter(address(minter));
     address[] memory tokens = new address[](4);
     tokens[0] = address(USDC);
     tokens[1] = address(FRAX);
     tokens[2] = address(DAI);
-    tokens[3] = address(VARA);
+    tokens[3] = address(VIRI);
     voter.init(tokens, address(minter));
 
-    VARA.approve(address(gaugeFactory), 15 * TOKEN_100K);
+    VIRI.approve(address(gaugeFactory), 15 * TOKEN_100K);
     voter.createGauge(address(pair));
     voter.createGauge(address(pair2));
 
-    staking = new TestStakingRewards(address(pair), address(VARA));
-    staking2 = new TestStakingRewards(address(pair2), address(VARA));
+    staking = new TestStakingRewards(address(pair), address(VIRI));
+    staking2 = new TestStakingRewards(address(pair2), address(VIRI));
 
     address gaugeAddress = voter.gauges(address(pair));
     address bribeAddress = voter.internal_bribes(gaugeAddress);
@@ -150,7 +150,7 @@ contract KillGaugesTest is BaseTest {
     minter.update_period();
     voter.updateGauge(address(gauge));
     uint256 claimable = voter.claimable(address(gauge));
-    VARA.approve(address(staking), claimable);
+    VIRI.approve(address(staking), claimable);
     staking.notifyRewardAmount(claimable);
     address[] memory gauges = new address[](1);
     gauges[0] = address(gauge);
@@ -168,7 +168,7 @@ contract KillGaugesTest is BaseTest {
     minter.update_period();
     voter.updateGauge(address(gauge));
     uint256 claimable = voter.claimable(address(gauge));
-    VARA.approve(address(staking), claimable);
+    VIRI.approve(address(staking), claimable);
     staking.notifyRewardAmount(claimable);
     address[] memory gauges = new address[](1);
     gauges[0] = address(gauge);
@@ -188,11 +188,11 @@ contract KillGaugesTest is BaseTest {
 
     uint256 claimable = voter.claimable(address(gauge));
     console2.log(claimable);
-    VARA.approve(address(staking), claimable);
+    VIRI.approve(address(staking), claimable);
     staking.notifyRewardAmount(claimable);
 
     uint256 claimable2 = voter.claimable(address(gauge2));
-    VARA.approve(address(staking), claimable2);
+    VIRI.approve(address(staking), claimable2);
     staking.notifyRewardAmount(claimable2);
 
     address[] memory gauges = new address[](2);

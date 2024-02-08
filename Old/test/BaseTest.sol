@@ -18,8 +18,8 @@ import "contracts/PairFees.sol";
 import "contracts/RewardsDistributor.sol";
 import "contracts/Router.sol";
 import "contracts/Router2.sol";
-import "contracts/Vara.sol";
-import "contracts/VaraLibrary.sol";
+import "contracts/Viri.sol";
+import "contracts/ViriLibrary.sol";
 import "contracts/Voter.sol";
 import "contracts/VeArtProxy.sol";
 import "contracts/VotingEscrow.sol";
@@ -49,14 +49,14 @@ abstract contract BaseTest is Test, TestOwner {
     MockERC20 FRAX;
     MockERC20 DAI;
     TestWETH WETH; // Mock WETH token
-    Vara VARA;
+    Viri VIRI;
     MockERC20 WEVE;
     MockERC20 LR; // late reward
     TestToken stake; // MockERC20 with claimFees() function that returns (0,0)
     PairFactory factory;
     Router router;
     Router2 router2;
-    VaraLibrary lib;
+    ViriLibrary lib;
     Pair pair;
     Pair pair2;
     Pair pair3;
@@ -87,9 +87,9 @@ abstract contract BaseTest is Test, TestOwner {
         WETH = new TestWETH();
         stake = new TestToken("stake", "stake", 18, address(owner));
 
-        Vara implVara = new Vara();
-        proxy = new TransparentUpgradeableProxy(address(implVara), address(admin), abi.encodeWithSelector(Vara.initialize.selector));
-        VARA = Vara(address(proxy));
+        Viri implViri = new Viri();
+        proxy = new TransparentUpgradeableProxy(address(implViri), address(admin), abi.encodeWithSelector(Viri.initialize.selector));
+        VIRI = Viri(address(proxy));
     }
 
     function mintStables() public {
@@ -100,9 +100,9 @@ abstract contract BaseTest is Test, TestOwner {
         }
     }
 
-    function mintVara(address[] memory _accounts, uint256[] memory _amounts) public {
+    function mintViri(address[] memory _accounts, uint256[] memory _amounts) public {
         for (uint256 i = 0; i < _amounts.length; i++) {
-            VARA.mint(_accounts[i], _amounts[i]);
+            VIRI.mint(_accounts[i], _amounts[i]);
         }
     }
 
@@ -149,9 +149,9 @@ abstract contract BaseTest is Test, TestOwner {
         router2 = Router2(payable(address(proxy)));
         
         assertEq(router.factory(), address(factory));
-        VaraLibrary implLib = new VaraLibrary();
-        proxy = new TransparentUpgradeableProxy(address(implLib), address(admin), abi.encodeWithSelector(VaraLibrary.initialize.selector, address(router)));
-        lib = VaraLibrary(address(proxy));
+        ViriLibrary implLib = new ViriLibrary();
+        proxy = new TransparentUpgradeableProxy(address(implLib), address(admin), abi.encodeWithSelector(ViriLibrary.initialize.selector, address(router)));
+        lib = ViriLibrary(address(proxy));
     }
 
     function deployPairWithOwner(address _owner) public {

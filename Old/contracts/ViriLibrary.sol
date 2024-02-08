@@ -6,7 +6,7 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import "contracts/interfaces/IPair.sol";
 import "contracts/interfaces/IRouter.sol";
 
-contract VaraLibrary is Initializable {
+contract ViriLibrary is Initializable {
     IRouter internal router;
 
     function initialize(address _router) external initializer {

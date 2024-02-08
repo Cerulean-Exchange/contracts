@@ -12,20 +12,20 @@ import allContracts from "./contracts";
 import mainet from "./scripts/constants/mainnet-config";
 
 interface IContract {
-    Vara: string;
+    Viri: string;
     GaugeFactory: string;
     BribeFactory: string;
     PairFactory: string;
     Router: string;
     Router2: string;
-    VaraLibrary: string;
+    ViriLibrary: string;
     VeArtProxy: string;
     VotingEscrow: string;
     RewardsDistributor: string;
     Voter: string;
     WrappedExternalBribeFactory: string;
     Minter: string;
-    VaraGovernor: string;
+    ViriGovernor: string;
     MerkleClaim: string;
     EquilibreTvlOracle: string;
     Equilibre_VE_Api: string;
@@ -121,7 +121,7 @@ task("price", "get oracle price").setAction(async () => {
     //console.log('mainet', mainet);
     const Pair = await hre.ethers.getContractFactory("contracts/Pair.sol:Pair")
     const Main = await hre.ethers.getContractFactory("contracts/EquilibreTvlOracle.sol:EquilibreTvlOracle")
-    const poolAddress = mainet.VARA_KAVA;
+    const poolAddress = mainet.VIRI_KAVA;
     const main = Main.attach(cfg.EquilibreTvlOracle);
     const pair = Pair.attach(poolAddress);
     const name = await pair.name();
