@@ -6,14 +6,14 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: "https://rpc.test.btcs.network/",
+        url: "https://rpc.coredao.org/",
       },
     },
     testnet: {
       url: "https://rpc.test.btcs.network/",
       accounts: [process.env.PRIVATE_KEY],
     },
-    core: {
+    mainnet: {
       url: "https://rpc.coredao.org/",
       accounts: [process.env.PRIVATE_KEY],
     },

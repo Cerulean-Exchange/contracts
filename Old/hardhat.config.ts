@@ -496,16 +496,16 @@ const config: HardhatUserConfig = {
         hardhat: {
             initialBaseFeePerGas: 0,
             forking: {
-                url: "https://evm.kava.io",
+                url: "https://rpc.coredao.org/",
                 blockNumber: 4943723
             }
         },
         mainnet: {
-            url: "https://evm.kava.io",
+            url: "https://rpc.coredao.org/",
             accounts: [process.env.PRIVATE_KEY!]
         },
         testnet: {
-            url: "https://evm.testnet.kava.io",
+            url: "https://rpc.test.btcs.network/",
             accounts: [process.env.PRIVATE_KEY!]
         },
         bsc_testnet: {
@@ -535,15 +535,15 @@ const config: HardhatUserConfig = {
                 chainId: 2222,
                 urls: {
                     apiURL: "https://explorer.kava.io/api",
-                    browserURL: "https://explorer.kava.io"
+                    browserURL: "https://scan.coredao.org/"
                 }
             },
             { // npx hardhat verify --list-networks
                 network: "testnet",
-                chainId: 2221,
+                chainId: 1115,
                 urls: {
                     apiURL: "https://explorer.testnet.kava.io/api",
-                    browserURL: "https://explorer.testnet.kava.io"
+                    browserURL: "https://scan.test.btcs.network/"
                 }
             }
         ]
