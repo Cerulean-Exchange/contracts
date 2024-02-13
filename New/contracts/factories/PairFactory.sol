@@ -15,7 +15,7 @@ contract PairFactory is OwnableUpgradeable, IPairFactory {
 
     uint256 public stableFee;
     uint256 public volatileFee;
-    uint256 public constant MAX_FEE = 50; // 0.5%
+    uint256 public constant MAX_FEE = 200; // 0.5%
     address public feeManager;
     address public pendingFeeManager;
 
@@ -37,8 +37,8 @@ contract PairFactory is OwnableUpgradeable, IPairFactory {
         pauser = msg.sender;
         isPaused = false;
         feeManager = msg.sender;
-        stableFee = 4; // 0.04%
-        volatileFee = 30;
+        stableFee = 5; // 0.04%
+        volatileFee = 20;
         beacon = new UpgradeableBeacon(implPair);
     }
 
