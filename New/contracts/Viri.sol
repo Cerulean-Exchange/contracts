@@ -6,7 +6,7 @@ import "contracts/interfaces/IViri.sol";
 
 contract Viri is Initializable, IViri {
 
-    string public constant name = "Viri";
+    string public constant name = "Viridian";
     string public constant symbol = "VIRI";
     uint8 public constant decimals = 18;
     uint public totalSupply = 0;
@@ -46,7 +46,7 @@ contract Viri is Initializable, IViri {
     function initialMint(address _recipient) external {
         require(msg.sender == minter && !initialMinted);
         initialMinted = true;
-        _mint(_recipient, 40_000_000 * 1e18);
+        _mint(_recipient, 6_000_000 * 1e18);
     }
 
     function approve(address _spender, uint _value) external returns (bool) {
