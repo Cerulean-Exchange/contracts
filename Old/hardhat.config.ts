@@ -532,9 +532,9 @@ const config: HardhatUserConfig = {
         customChains: [
             {
                 network: "mainnet",
-                chainId: 2222,
+                chainId: 1116,
                 urls: {
-                    apiURL: "https://explorer.kava.io/api",
+                    apiURL: "https://openapi.coredao.org/api",
                     browserURL: "https://scan.coredao.org/"
                 }
             },
@@ -542,7 +542,7 @@ const config: HardhatUserConfig = {
                 network: "testnet",
                 chainId: 1115,
                 urls: {
-                    apiURL: "https://explorer.testnet.kava.io/api",
+                    apiURL: "https://api.test.btcs.network/api",
                     browserURL: "https://scan.test.btcs.network/"
                 }
             }
