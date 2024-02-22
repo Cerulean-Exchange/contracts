@@ -6,7 +6,9 @@ describe("Deploy Test", function(){
    
     let Viri, viriContract, owner, addr1, addr2,VeArt, veArtProxy, votingEscrow, votingEscrowContract, 
     intBribeImp, intBribeImplContract, extBribeImp, extBribeImpContract, bribeFactory, bribeFactoryContract, 
-    gaugeImpl, gaugeImplContract, gaugeFactory, gaugeFactoryContract, pairImpl, pairImplContract, pairFactoryContract;
+    gaugeImpl, gaugeImplContract, gaugeFactory, gaugeFactoryContract, pairImpl, pairImplContract, pairFactoryContract, voterContract,
+    WrappedExternalBribeFactoryContract, veSplitter,veSplitterContract;
+
     
     before(async ()=>{
 
@@ -16,8 +18,13 @@ describe("Deploy Test", function(){
             return contractInstance;
         }
 
-
+        const signers = await ethers.getSigners();
         [owner, addr1, addr2, _] = await ethers.getSigners();
+        let contractAddresses = [];
+        // llenar la matriz con las direcciones de los signatarios
+        for (let i = 0; i < 5; i++) {
+            contractAddresses.push(signers[i].address);
+        }
         //Deploy Viri
         viriContract = await deployContract("Viri");
 
@@ -49,6 +56,24 @@ describe("Deploy Test", function(){
         //Deploy Pair Factroy
         pairFactoryContract = await deployContract("PairFactory");
         await pairFactoryContract.initialize(pairImplContract.target);
+
+        //Deploy Voter
+        voterContract = await deployContract("Voter");
+        await voterContract.initialize(votingEscrowContract.target, pairFactoryContract.target, gaugeFactoryContract.target, bribeFactoryContract.target); 
+
+        //Deploy WrappedExternalBribeFactory
+        WrappedExternalBribeFactoryContract = await deployContract("WrappedExternalBribeFactory");
+        await WrappedExternalBribeFactoryContract.initialize(voterContract.target);
+
+        //Deploy InternalBribe/ExternalBribe
+        await intBribeImplContract.initialize(voterContract.target, contractAddresses);
+        await extBribeImplContract.initialize(voterContract.target, contractAddresses);
+        //console.log(contractAddresses);
+        //Deploy veSplitter
+            veSplitter = await ethers.getContractFactory("veSplitter");
+            veSplitterContract = await veSplitter.deploy(voterContract.target);
+
+
         });
 
         
@@ -81,6 +106,28 @@ describe("Deploy Test", function(){
         it("06 Test Deploy Pair Factory", async function () {
             console.log("Pair implementation: ", pairImplContract.target);
             console.log("pair factory: ", pairFactoryContract.target)
+        });
+
+        it("07 Test Deploy Voter", async function () {
+            
+            console.log("Voter contract: ", voterContract.target)
+        });
+
+        it("08 Test Deploy WrappedExternalBribeFactory", async function () {
+            
+            console.log("WrappedExternalBribeFactory: ", WrappedExternalBribeFactoryContract.target)
+        });
+
+        it("09 Test Deploy Internal/External bribe", async function(){
+            
+            console.log("internal bribe: ", intBribeImplContract.target);
+            console.log("external bribe: ", extBribeImplContract.target);
+
+        })
+
+        it("10 Test Deploy veSplitter", async function () {
+            
+            console.log("veSplitter: ", veSplitterContract.target)
         });
 
 })
