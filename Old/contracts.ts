@@ -1,5 +1,5 @@
 export default {
-  "2222": {
+  "1116": {
     "Viri": "0xE1da44C0dA55B075aE8E2e4b6986AdC76Ac77d73",
     "GaugeFactory": "0xa337E9426d080970b026caFfb4a83D185b85A124",
     "BribeFactory": "0x7B14b7288D50810a6982149B107238065AA7fcb7",
@@ -19,7 +19,7 @@ export default {
     "Equilibre_VE_Api": "0x2d17395C3b033eF1823f9E5b5eF2F454fA462f74"
   },
 
-  "2221": {
+  "1115": {
     "Viri": "0xE1da44C0dA55B075aE8E2e4b6986AdC76Ac77d73",
     "GaugeFactory": "0xa337E9426d080970b026caFfb4a83D185b85A124",
     "BribeFactory": "0x7B14b7288D50810a6982149B107238065AA7fcb7",

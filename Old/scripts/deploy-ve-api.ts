@@ -36,7 +36,7 @@ async function main() {
     console.log('Equilibre_VE_Api', veApi.address);
 
     try {
-        if( chainId === 2222 || chainId === 2221 ) {
+        if( chainId === 1116 || chainId === 1115 ) {
             await oracle.deployTransaction.wait(10);
             await hre.run("verify:verify", {
                 address: oracle.address,
@@ -48,7 +48,7 @@ async function main() {
     }
 
     try {
-        if( chainId === 2222 || chainId === 2221 ) {
+        if( chainId === 1116 || chainId === 1115 ) {
             await veApi.deployTransaction.wait(10);
             await hre.run("verify:verify", {
                 address: veApi.address,

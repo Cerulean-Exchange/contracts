@@ -3,7 +3,7 @@ import {task} from "hardhat/config";
 async function main() {
     const network = await hre.ethers.provider.getNetwork();
     const chainId = network.chainId;
-    const mainnet = chainId === 2222;
+    const mainnet = chainId === 1116;
     console.log(`#Network: ${chainId}`);
     const FaucetERC20d8 = await hre.ethers.getContractFactory("FaucetERC20d8");
     const name = 'Wrapped BTC';
@@ -12,7 +12,7 @@ async function main() {
     const main = await FaucetERC20d8.deploy(name, symbol, value.toString());
     await main.deployed();
     try {
-        if (chainId === 2222 || chainId === 2221) {
+        if (chainId === 1116 || chainId === 1115) {
             await main.deployTransaction.wait(5);
             await hre.run("verify:verify",
                 {

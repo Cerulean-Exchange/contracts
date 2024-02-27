@@ -6,7 +6,7 @@ import testnet_config from "./constants/testnet-config";
 async function main() {
     const network = await hre.ethers.provider.getNetwork();
     const chainId = network.chainId;
-    const mainnet = chainId === 2222;
+    const mainnet = chainId === 1116;
     console.log(`#Network: ${chainId}`);
     const CONFIG = mainnet ? mainnet_config : testnet_config;
     // Load

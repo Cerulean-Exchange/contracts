@@ -6,7 +6,7 @@ import testnet_config from "./constants/testnet-config";
 async function main() {
     const network = await hre.ethers.provider.getNetwork();
     const chainId = network.chainId;
-    const mainnet = chainId === 2222;
+    const mainnet = chainId === 1116;
     console.log(`#Network: ${chainId}`);
     const CONFIG = mainnet ? mainnet_config : testnet_config;
     // Load
@@ -21,7 +21,7 @@ async function main() {
     await token.initialize(router);
     /*
     try {
-        if( chainId === 2222 || chainId === 2221 ) {
+        if( chainId === 1116 || chainId === 1115 ) {
             await router.deployTransaction.wait(5);
             await hre.run("verify:verify", {address: router.address, constructorArguments: [pairFactory, CONFIG.WETH]});
         }

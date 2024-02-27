@@ -1,4 +1,4 @@
-import {task} from "hardhat/config";
+import { task } from "hardhat/config";
 
 import mainnet_config from "./constants/mainnet-config";
 import testnet_config from "./constants/testnet-config";
@@ -6,7 +6,7 @@ import testnet_config from "./constants/testnet-config";
 async function main() {
     const network = await hre.ethers.provider.getNetwork();
     const chainId = network.chainId;
-    const mainnet = chainId === 2222;
+    const mainnet = chainId === 1116;
     console.log(`#Network: ${chainId}`);
     const CONFIG = mainnet ? mainnet_config : testnet_config;
     /*
@@ -19,7 +19,7 @@ async function main() {
     console.log('main', main.address);
     */
     try {
-        if( chainId === 2222 || chainId === 2221 ) {
+        if( chainId === 1116 || chainId === 1115 ) {
             //await main.deployTransaction.wait(20);
             const addr = '0x65e21BF68a90eead2e935D8774A171c189F5e940';
             await hre.run("verify:verify", {address: addr, constructorArguments: []});

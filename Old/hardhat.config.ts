@@ -10,6 +10,7 @@ import {HardhatUserConfig, task} from "hardhat/config";
 import fs from "fs";
 import allContracts from "./contracts";
 import mainet from "./scripts/constants/mainnet-config";
+const { ethers } = require("hardhat");
 
 interface IContract {
     Viri: string;
@@ -121,7 +122,7 @@ task("price", "get oracle price").setAction(async () => {
     //console.log('mainet', mainet);
     const Pair = await hre.ethers.getContractFactory("contracts/Pair.sol:Pair")
     const Main = await hre.ethers.getContractFactory("contracts/EquilibreTvlOracle.sol:EquilibreTvlOracle")
-    const poolAddress = mainet.VIRI_KAVA;
+    const poolAddress = mainet.VIRI_CORE;
     const main = Main.attach(cfg.EquilibreTvlOracle);
     const pair = Pair.attach(poolAddress);
     const name = await pair.name();
