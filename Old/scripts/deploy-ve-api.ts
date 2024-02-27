@@ -21,16 +21,16 @@ async function main() {
         hre.ethers.getContractFactory("EquilibreTvlOracle"),
         hre.ethers.getContractFactory("Equilibre_VE_Api"),
     ]);
-    const oracleArgs = [cfg.USDC, cfg.WETH, cfg.wKAVA_USDC];
+    const oracleArgs = [cfg.USDC, cfg.WETH, cfg.WCORE_USDT];
     //console.log('oracleArgs', oracleArgs);
 
     const oracle = await EquilibreTvlOracle.deploy(oracleArgs, cfg.USDC_DECIMALS);
     await oracle.deployed();
     console.log('EquilibreTvlOracle', oracle.address);
 
-    const veApi = await Equilibre_VE_Api.deploy(oracle.address, cfg.VARA_KAVA,
+    const veApi = await Equilibre_VE_Api.deploy(oracle.address, cfg.VIRI_CORE,
         contracts.Vara, contracts.Voter, contracts.VotingEscrow);
-    const veApiVerifyArgs = [oracle.address, cfg.VARA_KAVA,
+    const veApiVerifyArgs = [oracle.address, cfg.VIRI_CORE,
         contracts.Vara, contracts.Voter, contracts.VotingEscrow];
     await veApi.deployed();
     console.log('Equilibre_VE_Api', veApi.address);

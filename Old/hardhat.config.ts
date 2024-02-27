@@ -187,7 +187,7 @@ task("ve-api-setPool2", "set vara price pool").setAction(async () => {
     const cfg = await loadCfg();
     const Main = await hre.ethers.getContractFactory("contracts/veApi.sol:Equilibre_VE_Api")
     const main = Main.attach(cfg.Equilibre_VE_Api);
-    const poolAddress = mainet.VARA_KAVA;
+    const poolAddress = mainet.VIRI_CORE;
     const tx = await main.setPool2(poolAddress);
     tx.wait();
     console.log(`setPool2 to ${poolAddress} tx: ${tx.hash}`);
@@ -479,7 +479,7 @@ task("merkleRoot", "MerkleClaim.merkleRoot").setAction(async () => {
     const Main = await ethers.getContractFactory("MerkleClaim")
     const Vara = await ethers.getContractFactory("Vara")
     const main = Main.attach('0x6C54e61E0295b6f22d8F91CEd5ddE712f2061eE0');
-    const merkleRoot = await main.merkleRoot();
+    const  = await main.merkleRoot();
     const varaAddress = await main.VARA();
     const vara = Vara.attach(varaAddress);
     const merkleClaim = await vara.merkleClaim();
