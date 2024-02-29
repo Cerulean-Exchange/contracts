@@ -1,6 +1,7 @@
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
+require("@nomiclabs/hardhat-waffle");
 import "@typechain/hardhat";
 import "hardhat-preprocessor";
 import "hardhat-abi-exporter";
@@ -11,6 +12,7 @@ import fs from "fs";
 import allContracts from "./contracts";
 import mainet from "./scripts/constants/mainnet-config";
 const { ethers } = require("hardhat");
+import hre from 'hardhat'
 
 interface IContract {
     Viri: string;
@@ -131,7 +133,7 @@ task("price", "get oracle price").setAction(async () => {
     console.log(`${name} price: ${fromWei(price)}`);
 });
 
-task("ve-api-info", "set vara price pool").setAction(async () => {
+task("ve-api-info", "set viri price pool").setAction(async () => {
     const cfg = await loadCfg();
     const Main = await hre.ethers.getContractFactory("contracts/veApi.sol:Equilibre_VE_Api")
     const main = Main.attach(cfg.Equilibre_VE_Api);
@@ -184,7 +186,7 @@ task("ve-api-info", "set vara price pool").setAction(async () => {
 
 });
 
-task("ve-api-setPool2", "set vara price pool").setAction(async () => {
+task("ve-api-setPool2", "set viri price pool").setAction(async () => {
     const cfg = await loadCfg();
     const Main = await hre.ethers.getContractFactory("contracts/veApi.sol:Equilibre_VE_Api")
     const main = Main.attach(cfg.Equilibre_VE_Api);
@@ -196,7 +198,7 @@ task("ve-api-setPool2", "set vara price pool").setAction(async () => {
 
 task("bribeInfo", "stats about bribes").setAction(async () => {
     const cfg = await loadCfg();
-    const IERC20 = await ethers.getContractFactory("contracts/Vara.sol:Vara")
+    const IERC20 = await ethers.getContractFactory("contracts/Viri.sol:Viri")
     const Pair = await ethers.getContractFactory("contracts/Pair.sol:Pair")
     const Main = await ethers.getContractFactory("contracts/Voter.sol:Voter")
     const Gauge = await ethers.getContractFactory("contracts/Gauge.sol:Gauge")
@@ -340,7 +342,7 @@ task("gauges", "Voter.distributeFees").setAction(async () => {
 
 task("showFees", "showFees").setAction(async () => {
     const cfg = await loadCfg();
-    const IERC20 = await ethers.getContractFactory("contracts/Vara.sol:Vara")
+    const IERC20 = await ethers.getContractFactory("contracts/Viri.sol:Viri")
     const Main = await ethers.getContractFactory("contracts/Voter.sol:Voter")
     const Gauge = await ethers.getContractFactory("contracts/Gauge.sol:Gauge")
     const InternalBribe = await ethers.getContractFactory("contracts/InternalBribe.sol:InternalBribe")
@@ -378,9 +380,9 @@ task("batchRewardPerToken", "Gauge.batchRewardPerToken").setAction(async () => {
         const gauge = Gauge.attach(gaugeAddress);
         console.log(`- ${i}: ${poolAddress} = ${gaugeAddress}`);
         const supplyNumCheckpoints = await gauge.supplyNumCheckpoints();
-        const earned1 = await gauge.earned(cfg.Vara, process.env.MULTISIG);
-        let tx = await gauge.batchRewardPerToken(cfg.Vara, supplyNumCheckpoints);
-        const earned2 = await gauge.earned(cfg.Vara, process.env.MULTISIG);
+        const earned1 = await gauge.earned(cfg.Viri, process.env.MULTISIG);
+        let tx = await gauge.batchRewardPerToken(cfg.Viri, supplyNumCheckpoints);
+        const earned2 = await gauge.earned(cfg.Viri, process.env.MULTISIG);
         console.log(`  - maxRuns=${supplyNumCheckpoints}, earned1=${earned1}, earned2=${earned2}`);
         console.log(`  - tx=${tx.hash}`);
     }
@@ -396,7 +398,7 @@ task("earned", "Gauge.earned").setAction(async () => {
         const poolAddress = await main.pools(i);
         const gaugeAddress = await main.gauges(poolAddress);
         const gauge = Gauge.attach(gaugeAddress);
-        const earned = await gauge.earned(cfg.Vara, process.env.MULTISIG);
+        const earned = await gauge.earned(cfg.Viri, process.env.MULTISIG);
         const derivedBalance = await gauge.derivedBalance(process.env.MULTISIG);
         console.log(`- ${i}: gauge: ${gaugeAddress}, earned: ${earned}, balance: ${derivedBalance}`);
     }
@@ -478,17 +480,17 @@ task("getFees", "getFees")
 task("merkleRoot", "MerkleClaim.merkleRoot").setAction(async () => {
     // const cfg = await loadCfg();
     const Main = await ethers.getContractFactory("MerkleClaim")
-    const Vara = await ethers.getContractFactory("Vara")
+    const Viri = await ethers.getContractFactory("Viri")
     const main = Main.attach('0x6C54e61E0295b6f22d8F91CEd5ddE712f2061eE0');
-    const  = await main.merkleRoot();
-    const varaAddress = await main.VARA();
-    const vara = Vara.attach(varaAddress);
-    const merkleClaim = await vara.merkleClaim();
-    const minter = await vara.minter();
-    console.log(`VARA: ${varaAddress}`);
-    console.log(`- Vara.merkleRoot: ${merkleRoot}`);
-    console.log(`- Vara.merkleClaim: ${merkleClaim}`);
-    console.log(`- Vara.minter: ${minter}`);
+    const merkleRoot = await main.merkleRoot();
+    const viriAddress = await main.VIRI();
+    const viri = Viri.attach(viriAddress);
+    const merkleClaim = await viri.merkleClaim();
+    const minter = await viri.minter();
+    console.log(`VIRI: ${viriAddress}`);
+    console.log(`- Viri.merkleRoot: ${merkleRoot}`);
+    console.log(`- Viri.merkleClaim: ${merkleClaim}`);
+    console.log(`- Viri.minter: ${minter}`);
 });
 
 const config: HardhatUserConfig = {
