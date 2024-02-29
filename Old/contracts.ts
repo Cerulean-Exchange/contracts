@@ -1,4 +1,29 @@
-export default {
+interface ContractData {
+  Viri: string;
+  GaugeFactory: string;
+  BribeFactory: string;
+  PairFactory: string;
+  Router: string;
+  Router2: string;
+  ViriLibrary: string;
+  VeArtProxy: string;
+  VotingEscrow: string;
+  RewardsDistributor: string;
+  Voter: string;
+  WrappedExternalBribeFactory: string;
+  Minter: string;
+  ViriGovernor: string;
+  MerkleClaim: string;
+  EquilibreTvlOracle: string;
+  Equilibre_VE_Api: string;
+}
+
+interface Contracts {
+  [key: string]: ContractData;
+}
+
+
+const allContracts: Contracts = {
   "1116": {
     "Viri": "0xE1da44C0dA55B075aE8E2e4b6986AdC76Ac77d73",
     "GaugeFactory": "0xa337E9426d080970b026caFfb4a83D185b85A124",
@@ -59,3 +84,5 @@ export default {
     "Equilibre_VE_Api": "0x2d17395C3b033eF1823f9E5b5eF2F454fA462f74"
   }
 }
+
+export default allContracts;

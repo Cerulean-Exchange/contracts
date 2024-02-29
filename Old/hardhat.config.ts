@@ -1,7 +1,6 @@
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
-require("@nomiclabs/hardhat-waffle");
 import "@typechain/hardhat";
 import "hardhat-preprocessor";
 import "hardhat-abi-exporter";
