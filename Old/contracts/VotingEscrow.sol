@@ -89,7 +89,7 @@ contract VotingEscrow is Initializable, IERC721Upgradeable, IERC721MetadataUpgra
 
     uint8 internal _entered_state;
     /// @notice Contract constructor
-    /// @param token_addr `VIRI` token address
+    /// @param token_addr `Viri` token address
     function initialize(
         address token_addr, 
         address art_proxy
@@ -529,8 +529,8 @@ contract VotingEscrow is Initializable, IERC721Upgradeable, IERC721MetadataUpgra
     uint public supply;
 
     uint internal constant WEEK = 1 weeks;
-    uint internal constant MAXTIME = 4 * 365 * 86400;
-    int128 internal constant iMAXTIME = 4 * 365 * 86400;
+    uint internal constant MAXTIME = 1 * 365 * 86400;
+    int128 internal constant iMAXTIME = 1 * 365 * 86400;
     uint internal constant MULTIPLIER = 1 ether;
 
     /*//////////////////////////////////////////////////////////////
@@ -774,7 +774,7 @@ contract VotingEscrow is Initializable, IERC721Upgradeable, IERC721MetadataUpgra
 
         require(_value > 0); // dev: need non-zero value
         require(unlock_time > block.timestamp, 'Can only lock until time in the future');
-        require(unlock_time <= block.timestamp + MAXTIME, 'Voting lock can be 4 years max');
+        require(unlock_time <= block.timestamp + MAXTIME, 'Voting lock can be 1 years max');
 
         ++tokenId;
         uint _tokenId = tokenId;
@@ -824,7 +824,7 @@ contract VotingEscrow is Initializable, IERC721Upgradeable, IERC721MetadataUpgra
         require(_locked.end > block.timestamp, 'Lock expired');
         require(_locked.amount > 0, 'Nothing is locked');
         require(unlock_time > _locked.end, 'Can only increase lock duration');
-        require(unlock_time <= block.timestamp + MAXTIME, 'Voting lock can be 4 years max');
+        require(unlock_time <= block.timestamp + MAXTIME, 'Voting lock can be 1 years max');
 
         _deposit_for(_tokenId, 0, unlock_time, _locked, DepositType.INCREASE_UNLOCK_TIME);
     }

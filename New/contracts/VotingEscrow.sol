@@ -89,7 +89,7 @@ contract VotingEscrow is Initializable, IERC721Upgradeable, IERC721MetadataUpgra
 
     uint8 internal _entered_state;
     /// @notice Contract constructor
-    /// @param token_addr `VARA` token address
+    /// @param token_addr `VIRI` token address
     function initialize(
         address token_addr, 
         address art_proxy

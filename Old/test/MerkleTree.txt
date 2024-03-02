@@ -45,12 +45,12 @@ describe("Test", function () {
             const [DEV] = await ethers.getSigners();
             const wallet = DEV.address.toLowerCase();
             const config = mergeBalances(wallet, "100");
-            const Vara = await ethers.getContractFactory("Vara");
-            const vara = await Vara.deploy()
+            const Viri = await ethers.getContractFactory("Viri");
+            const viri = await Viri.deploy()
             const MerkleClaim = await ethers.getContractFactory("MerkleClaim");
 
-            const main = await MerkleClaim.deploy(vara.address, config.root);
-            await vara.setMerkleClaim(main.address);
+            const main = await MerkleClaim.deploy(viri.address, config.root);
+            await viri.setMerkleClaim(main.address);
 
             const MerkleTreeData = merkle.StandardMerkleTree.load(config.tree);
 

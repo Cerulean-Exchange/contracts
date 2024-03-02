@@ -230,7 +230,7 @@ contract Voter is Initializable, IVoter {
             }
         }
 
-        if (msg.sender != governor) { // gov can create for any pool, even non-Vara pairs
+        if (msg.sender != governor) { // gov can create for any pool, even non-Viri pairs
             require(isPair, "!_pool");
             require(isWhitelisted[tokenA] && isWhitelisted[tokenB], "!whitelisted");
         }

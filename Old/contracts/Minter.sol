@@ -13,16 +13,16 @@ import "contracts/interfaces/IVotingEscrow.sol";
 
 contract Minter is Initializable, IMinter {
     uint internal constant WEEK = 86400 * 7; // allows minting once per week (reset every Thursday 00:00 UTC)
-    uint internal constant EMISSION = 990;
+    uint internal constant EMISSION = 975;
     uint internal constant TAIL_EMISSION = 2;
     uint internal constant PRECISION = 1000;
     IViri public _viri;
     IVoter public _voter;
     IVotingEscrow public _ve;
     IRewardsDistributor public _rewards_distributor;
-    uint public weekly; // represents a starting weekly emission of 1.838M Viri (VIRI has 18 decimals)
+    uint public weekly; // represents a starting weekly emission of 1.838M Viri (Viri has 18 decimals)
     uint public active_period;
-    uint internal constant LOCK = 86400 * 7 * 52 * 4;
+    uint internal constant LOCK = 86400 * 7 * 52 * 1;
 
     address internal initer;
     address public team;
@@ -40,7 +40,7 @@ contract Minter is Initializable, IMinter {
         initer = msg.sender;
         team = msg.sender;
         teamRate = 60; // 60 bps = 0.06%
-        weekly = 1_838_000 * 1e18;
+        weekly = 100_000 * 1e18;
         _viri = IViri(IVotingEscrow(__ve).token());
         _voter = IVoter(__voter);
         _ve = IVotingEscrow(__ve);
@@ -100,6 +100,7 @@ contract Minter is Initializable, IMinter {
     }
 
     // calculate inflation and adjust ve balances accordingly
+    //Chequear esto para ver si lo modificamos o lo eliminamos
     function calculate_growth(uint _minted) public view returns (uint) {
         uint _veTotal = _ve.totalSupply();
         uint _viriTotal = _viri.totalSupply();
