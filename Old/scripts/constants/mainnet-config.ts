@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 const TEAM_MULTISIG = "0xc0b722Ad426Fd297B110E94EA8c71Ca9413bB5C4";
 const TEAM_EOA = "0x9074831C9e669577812A99553A6C175E68898ff8";
 const WETH = "";

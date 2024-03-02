@@ -10,8 +10,6 @@ import {HardhatUserConfig, task} from "hardhat/config";
 import fs from "fs";
 import allContracts from "./contracts";
 import mainet from "./scripts/constants/mainnet-config";
-const { ethers } = require("hardhat");
-import hre from 'hardhat'
 
 interface IContract {
     Viri: string;
