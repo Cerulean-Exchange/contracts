@@ -57,7 +57,7 @@ contract MinterTest is BaseTest {
         tokens[1] = address(VIRI);
         voter.init(tokens, address(owner));
         VIRI.approve(address(escrow), TOKEN_1);
-        escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
+        escrow.create_lock(TOKEN_1, 1 * 365 * 86400);
 
         RewardsDistributor implDistributor = new RewardsDistributor();
         proxy = new TransparentUpgradeableProxy(address(implDistributor), address(admin), abi.encodeWithSelector(RewardsDistributor.initialize.selector, address(escrow)));
@@ -107,6 +107,9 @@ contract MinterTest is BaseTest {
 
     function testMinterWeeklyDistribute() public {
         initializeVotingEscrow();
+
+        //TODO
+        //Valores actuales
 
         minter.update_period();
         assertEq(minter.weekly(), 1_838_000 * 1e18); // 15M

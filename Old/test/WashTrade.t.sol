@@ -33,7 +33,7 @@ contract WashTradeTest is BaseTest {
         deployBaseCoins();
 
         VIRI.approve(address(escrow), TOKEN_1);
-        escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
+        escrow.create_lock(TOKEN_1, 1 * 365 * 86400);
         vm.roll(block.number + 1); // fwd 1 block because escrow.balanceOfNFT() returns 0 in same block
         assertGt(escrow.balanceOfNFT(1), 995063075414519385);
         assertEq(VIRI.balanceOf(address(escrow)), TOKEN_1);
@@ -43,7 +43,7 @@ contract WashTradeTest is BaseTest {
         createLock();
 
         VIRI.approve(address(escrow), TOKEN_1);
-        escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
+        escrow.create_lock(TOKEN_1, 1 * 365 * 86400);
         vm.roll(block.number + 1);
         assertGt(escrow.balanceOfNFT(2), 995063075414519385);
         assertEq(VIRI.balanceOf(address(escrow)), 2 * TOKEN_1);

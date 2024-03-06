@@ -28,7 +28,7 @@ contract LPRewardsTest is BaseTest {
         escrow = VotingEscrow(address(proxy));
 
         VIRI.approve(address(escrow), TOKEN_1M);
-        escrow.create_lock(TOKEN_1M, 4 * 365 * 86400);
+        escrow.create_lock(TOKEN_1M, 1 * 365 * 86400);
 
         deployPairFactoryAndRouter();
         deployPairWithOwner(address(owner));

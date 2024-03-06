@@ -30,7 +30,7 @@ contract ImbalanceTest is BaseTest {
         deployBaseCoins();
 
         VIRI.approve(address(escrow), TOKEN_1);
-        escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
+        escrow.create_lock(TOKEN_1, 1 * 365 * 86400);
         vm.warp(1);
         assertGt(escrow.balanceOfNFT(1), 995063075414519385);
         assertEq(VIRI.balanceOf(address(escrow)), TOKEN_1);
@@ -40,7 +40,7 @@ contract ImbalanceTest is BaseTest {
         createLock();
 
         VIRI.approve(address(escrow), TOKEN_1);
-        escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
+        escrow.create_lock(TOKEN_1, 1 * 365 * 86400);
         assertGt(escrow.balanceOfNFT(2), 995063075414519385);
         assertEq(VIRI.balanceOf(address(escrow)), 2 * TOKEN_1);
         escrow.merge(2, 1);

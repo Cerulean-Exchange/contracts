@@ -32,7 +32,7 @@ contract KillGaugesTest is BaseTest {
     escrow = VotingEscrow(address(proxy));
 
     VIRI.approve(address(escrow), 100 * TOKEN_1);
-    escrow.create_lock(100 * TOKEN_1, 4 * 365 * 86400);
+    escrow.create_lock(100 * TOKEN_1, 1 * 365 * 86400);
     vm.roll(block.number + 1);
 
     deployPairFactoryAndRouter();

@@ -59,7 +59,7 @@ contract ViriVotingTest is BaseTest {
         tokens[1] = address(VIRI);
         voter.init(tokens, address(owner));
         VIRI.approve(address(escrow), TOKEN_1);
-        escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
+        escrow.create_lock(TOKEN_1, 1 * 365 * 86400);
 
         RewardsDistributor implDistributor = new RewardsDistributor();
         proxy = new TransparentUpgradeableProxy(address(implDistributor), address(admin), abi.encodeWithSelector(RewardsDistributor.initialize.selector, address(escrow)));

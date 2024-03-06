@@ -91,10 +91,10 @@ contract WrappedExternalBribesTest is BaseTest {
 
         // ve
         VIRI.approve(address(escrow), TOKEN_1);
-        escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
+        escrow.create_lock(TOKEN_1, 1 * 365 * 86400);
         vm.startPrank(address(owner2));
         VIRI.approve(address(escrow), TOKEN_1);
-        escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
+        escrow.create_lock(TOKEN_1, 1 * 365 * 86400);
         vm.warp(block.timestamp + 1);
         vm.stopPrank();
     }

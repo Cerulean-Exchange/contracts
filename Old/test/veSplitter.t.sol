@@ -155,7 +155,7 @@ contract veSplitterTest is Test {
 
         gauge_eth_viri = Gauge(voter.createGauge(address(pool_eth_viri)));
         vm.roll(block.number + 1);
-        uint duration = 4 * 365 * 86400;
+        uint duration = 1 * 365 * 86400;
         viri.approve(address(escrow), viri.balanceOf(address(this)));
         tokenId = escrow.create_lock(viri.balanceOf(address(this)), duration);
 

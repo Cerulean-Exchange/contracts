@@ -32,13 +32,13 @@ contract ViriGovernorTest is BaseTest {
         escrow = VotingEscrow(address(proxy));
 
         VIRI.approve(address(escrow), 97 * TOKEN_1);
-        escrow.create_lock(97 * TOKEN_1, 4 * 365 * 86400);
+        escrow.create_lock(97 * TOKEN_1, 1 * 365 * 86400);
         vm.roll(block.number + 1);
 
         // owner2 owns less than quorum, 3%
         vm.startPrank(address(owner2));
         VIRI.approve(address(escrow), 3 * TOKEN_1);
-        escrow.create_lock(3 * TOKEN_1, 4 * 365 * 86400);
+        escrow.create_lock(3 * TOKEN_1, 1 * 365 * 86400);
         vm.roll(block.number + 1);
         vm.stopPrank();
 
@@ -115,7 +115,7 @@ contract ViriGovernorTest is BaseTest {
         // owner2 + owner3 > quorum
         vm.startPrank(address(owner3));
         VIRI.approve(address(escrow), 3 * TOKEN_1);
-        escrow.create_lock(3 * TOKEN_1, 4 * 365 * 86400);
+        escrow.create_lock(3 * TOKEN_1, 1 * 365 * 86400);
         vm.roll(block.number + 1);
         uint256 pre2 = escrow.getVotes(address(owner2));
         uint256 pre3 = escrow.getVotes(address(owner3));
