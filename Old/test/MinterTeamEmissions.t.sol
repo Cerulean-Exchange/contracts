@@ -87,7 +87,7 @@ contract MinterTeamEmissions is BaseTest {
             address(owner),
             block.timestamp
         );
-
+        
         address pair = router.pairFor(address(FRAX), address(VIRI), false);
 
         VIRI.approve(address(voter), 5 * TOKEN_100K);
@@ -95,7 +95,7 @@ contract MinterTeamEmissions is BaseTest {
         vm.roll(block.number + 1); // fwd 1 block because escrow.balanceOfNFT() returns 0 in same block
         assertGt(escrow.balanceOfNFT(1), 995063075414519385);
         assertEq(VIRI.balanceOf(address(escrow)), TOKEN_1);
-
+        
         address[] memory pools = new address[](1);
         pools[0] = pair;
         uint256[] memory weights = new uint256[](1);
@@ -105,24 +105,24 @@ contract MinterTeamEmissions is BaseTest {
         address[] memory claimants = new address[](1);
         claimants[0] = address(owner);
         uint256[] memory amountsToMint = new uint256[](1);
-        amountsToMint[0] = TOKEN_1M;
-        minter.init(claimants, amountsToMint, 1_838_000 * 1e18);
+        amountsToMint[0] = TOKEN_1 * 1000;
+        minter.init(claimants, amountsToMint, 100_000 * 1e18);
         assertEq(escrow.ownerOf(2), address(owner));
         assertEq(escrow.ownerOf(3), address(0));
-        vm.roll(block.number + 1);
-        assertEq(VIRI.balanceOf(address(minter)), 838_000 ether );
-
+         vm.roll(block.number + 1);
+        assertEq(VIRI.balanceOf(address(minter)), 99_000 ether );
+    
         uint256 before = VIRI.balanceOf(address(owner));
         minter.update_period(); // initial period week 1
         uint256 after_ = VIRI.balanceOf(address(owner));
-        assertEq(minter.weekly(), 1_838_000 * 1e18);
+        assertEq(minter.weekly(), 100_000 * 1e18);
         assertEq(after_ - before, 0);
         vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         before = VIRI.balanceOf(address(owner));
         minter.update_period(); // initial period week 2
         after_ = VIRI.balanceOf(address(owner));
-        assertLt(minter.weekly(), 15 * TOKEN_1M); // <15M for week shift
+        assertLt(minter.weekly(), 6 * TOKEN_1M); // <6M for week shift */ 
     }
 
     function testChangeTeam() public {
