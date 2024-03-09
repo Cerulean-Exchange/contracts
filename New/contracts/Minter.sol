@@ -105,24 +105,22 @@ contract Minter is Initializable, IMinter {
     }
 
     // update period can only be called once per cycle (1 week)
-    function update_period() external returns (uint) {
+        function update_period() external returns (uint) {
         uint _period = active_period;
         if (block.timestamp >= _period + WEEK && initer == address(0)) { // only trigger if new week
             _period = (block.timestamp / WEEK) * WEEK;
             active_period = _period;
             weekly = weekly_emission();
 
-            uint _growth = calculate_growth(weekly);
-            uint _teamEmissions = (teamRate * (_growth + weekly)) /
+            uint _teamEmissions = (teamRate * weekly) /
                 (PRECISION - teamRate);
-            uint _required = _growth + weekly + _teamEmissions;
+            uint _required =  weekly + _teamEmissions;
             uint _balanceOf = _viri.balanceOf(address(this));
             if (_balanceOf < _required) {
                 _viri.mint(address(this), _required - _balanceOf);
             }
 
             require(_viri.transfer(team, _teamEmissions));
-            require(_viri.transfer(address(_rewards_distributor), _growth));
             _rewards_distributor.checkpoint_token(); // checkpoint token balance that was just minted in rewards distributor
             _rewards_distributor.checkpoint_total_supply(); // checkpoint supply
 
@@ -133,4 +131,5 @@ contract Minter is Initializable, IMinter {
         }
         return _period;
     }
+}
 }
