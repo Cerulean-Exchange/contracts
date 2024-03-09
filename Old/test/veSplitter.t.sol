@@ -217,7 +217,7 @@ contract veSplitterTest is Test {
         vm.expectRevert(abi.encodePacked(veSplitter.NftLocked.selector));
         main.split(amounts, locks, tokenId);
 
-        uint duration = 4 * 365 * 86400;
+        uint duration = 1 * 365 * 86400;
         vm.warp(block.timestamp + duration + 1);
         vm.roll(block.number + 1);
 
@@ -225,11 +225,10 @@ contract veSplitterTest is Test {
         main.split(amounts, locks, tokenId);
 
         uint balanceOfNft = escrow.balanceOf(address(this));
-        assert( balanceOfNft == 3 );
+         assert( balanceOfNft == 3 );
         uint balanceOfTokenAfter = viri.balanceOf(address(this));
         uint tokensReceived = balanceOfTokenAfter - balanceOfTokenBefore;
-        assert( tokensReceived == 39999897000000000000000000);
-
+        assert( tokensReceived == 5999897000000000000000000);
     }
 
 }

@@ -115,7 +115,7 @@ contract ViriVotingTest is BaseTest {
         uint256 before = VIRI.balanceOf(address(owner));
         minter.update_period(); // initial period week 1
         uint256 after_ = VIRI.balanceOf(address(owner));
-        assertEq(minter.weekly(), 1_838_000 * 1e18);
+        assertEq(minter.weekly(), 100_000 * 1e18);
         assertEq(after_ - before, 0);
         vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
