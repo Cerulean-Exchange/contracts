@@ -55,9 +55,9 @@ contract PairTest is BaseTest {
         VIRI.approve(address(escrow), 5e17);
         escrow.increase_amount(1, 5e17);
         vm.expectRevert(abi.encodePacked('Can only increase lock duration'));
-        escrow.increase_unlock_time(1, 4 * 365 * 86400);
+        escrow.increase_unlock_time(1, 1 * 365 * 86400);
         assertGt(escrow.balanceOfNFT(1), 995063075414519385);
-        assertEq(VIRI.balanceOf(address(escrow)), TOKEN_1);
+        assertEq(VIRI.balanceOf(address(escrow)), TOKEN_1); 
     }
 
     function votingEscrowViews() public {
@@ -760,7 +760,7 @@ contract PairTest is BaseTest {
         voter.claimFees(bribes_, rewards, 1);
         uint256 supply = escrow.totalSupply();
         assertGt(supply, 0);
-        vm.warp(block.timestamp + 4*365*86400);
+        vm.warp(block.timestamp + 1*365*86400);
         vm.roll(block.number + 1);
         assertEq(escrow.balanceOfNFT(1), 0);
         assertEq(escrow.totalSupply(), 0);
