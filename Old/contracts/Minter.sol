@@ -99,16 +99,9 @@ contract Minter is Initializable, IMinter {
         return (circulating_supply() * TAIL_EMISSION) / PRECISION;
     }
 
-    // calculate inflation and adjust ve balances accordingly
-    //Chequear esto para ver si lo modificamos o lo eliminamos
+    // Hardcoded to 0
     function calculate_growth(uint _minted) public view returns (uint) {
-        uint _veTotal = _ve.totalSupply();
-        uint _viriTotal = _viri.totalSupply();
-        return
-            (((((_minted * _veTotal) / _viriTotal) * _veTotal) / _viriTotal) *
-                _veTotal) /
-            _viriTotal /
-            2;
+        0;
     }
 
     // update period can only be called once per cycle (1 week)
