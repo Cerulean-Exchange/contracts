@@ -132,4 +132,3 @@ contract Minter is Initializable, IMinter {
         return _period;
     }
 }
-}
