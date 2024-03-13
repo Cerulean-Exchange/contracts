@@ -1,5 +1,5 @@
 // Importa las herramientas de prueba necesarias de hardhat
-const { expect } = require("chai");
+//const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("Deploy Test", function(){
@@ -73,7 +73,7 @@ describe("Deploy Test", function(){
             veSplitter = await ethers.getContractFactory("veSplitter");
             veSplitterContract = await veSplitter.deploy(voterContract.target);
 
-
+        
         });
 
         

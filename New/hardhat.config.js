@@ -6,7 +6,7 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: "https://rpc.coredao.org/",
+        url: "https://rpc.ankr.com/core",
       },
     },
     testnet: {
