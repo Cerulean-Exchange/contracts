@@ -7,7 +7,9 @@ describe("Deploy Test", function(){
     let Viri, viriContract, owner, addr1, addr2,VeArt, veArtProxy, votingEscrow, votingEscrowContract, 
     intBribeImp, intBribeImplContract, extBribeImp, extBribeImpContract, bribeFactory, bribeFactoryContract, 
     gaugeImpl, gaugeImplContract, gaugeFactory, gaugeFactoryContract, pairImpl, pairImplContract, pairFactoryContract, voterContract,
-    WrappedExternalBribeFactoryContract, veSplitter,veSplitterContract;
+    WrappedExternalBribeFactoryContract, veSplitter,veSplitterContract, router, routerContract,
+    router2Contract, viriLibraryContract, wrappedExternalBribe, wrappedExternalBribeContract, wrappedExternalBribe2,
+    rewardsDistriburorContract, minterContract, merkleClaimContract, veApiContract, gaugeContract;
 
     
     before(async ()=>{
@@ -70,11 +72,43 @@ describe("Deploy Test", function(){
         await extBribeImplContract.initialize(voterContract.target, contractAddresses);
         //console.log(contractAddresses);
         //Deploy veSplitter
-            veSplitter = await ethers.getContractFactory("veSplitter");
-            veSplitterContract = await veSplitter.deploy(voterContract.target);
+        veSplitter = await ethers.getContractFactory("veSplitter");
+        veSplitterContract = await veSplitter.deploy(voterContract.target);
+
+        //Deploy Router
+        routerContract = await deployContract("Router")
+        await routerContract.initialize(pairFactoryContract.target, "0xeAB3aC417c4d6dF6b143346a46fEe1B847B50296")
+
+        //Deploy Router2
+        router2Contract = await deployContract("Router2")
+        
+        //Deploy ViriLibrary
+        viriLibraryContract = await deployContract("ViriLibrary");
+        await viriLibraryContract.initialize(routerContract.target);
+
+       /*  wrappedExternalBribe2 = await deployContract("WrappedExternalBribe")
+        console.log("Wrapped2: ", wrappedExternalBribe2) */
+
+        //Deploy WrappedExternalBribe
+        wrappedExternalBribe = await ethers.getContractFactory("WrappedExternalBribeV2");
+        wrappedExternalBribeContract = await wrappedExternalBribe.deploy(voterContract.target);
+
+        //Deploy RewardsDistributor
+        rewardsDistriburorContract = await deployContract("RewardsDistributor");
+        await rewardsDistriburorContract.initialize(votingEscrowContract.target) 
+
+        //Deploy Equilibre Oracle
+        
+
+        //Deploy veApi
+
+
+        //Deploy Minter
+        minterContract = await deployContract("Minter");
+        await minterContract.initialize(voterContract.target, ve)
+        });
 
         
-        });
 
         
 
@@ -129,5 +163,14 @@ describe("Deploy Test", function(){
             
             console.log("veSplitter: ", veSplitterContract.target)
         });
+
+        it("11 Test Deploy Router", async function () {
+            console.log("Router: ", routerContract.target);
+            console.log("Router2: ", router2Contract.target);
+            console.log("ViriLibrary: ", viriLibraryContract.target);
+            console.log("Wrapped External Bribe: ", wrappedExternalBribeContract.target);
+        });
+
+        
 
 })

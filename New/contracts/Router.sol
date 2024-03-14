@@ -18,6 +18,7 @@ contract Router is Initializable, IRouter {
         bool stable;
     }
 
+    //pair factory
     address public factory;
     IWETH public weth;
     uint internal constant MINIMUM_LIQUIDITY = 10**3;
