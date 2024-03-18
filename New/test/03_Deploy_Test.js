@@ -9,7 +9,7 @@ describe("Deploy Test", function(){
     gaugeImpl, gaugeImplContract, gaugeFactory, gaugeFactoryContract, pairImpl, pairImplContract, pairFactoryContract, voterContract,
     WrappedExternalBribeFactoryContract, veSplitter,veSplitterContract, router, routerContract,
     router2Contract, viriLibraryContract, wrappedExternalBribe, wrappedExternalBribeContract, wrappedExternalBribe2,
-    rewardsDistriburorContract, minterContract, merkleClaimContract, veApiContract, gaugeContract;
+    rewardsDistriburorContract, minterContract, merkleClaimContract, veApi,veApiContract, gaugeContract, internalBribeContract, externalBribeContract;
 
     
     before(async ()=>{
@@ -97,78 +97,100 @@ describe("Deploy Test", function(){
         rewardsDistriburorContract = await deployContract("RewardsDistributor");
         await rewardsDistriburorContract.initialize(votingEscrowContract.target) 
 
-        //Deploy Equilibre Oracle
         
-
         //Deploy veApi
-
+        veApi = await ethers.getContractFactory("VE_Api_V2");
+        veApiContract = await veApi.deploy("0x3d6c56f6855b7Cc746fb80848755B0a9c3770122", viriContract.target, voterContract.target, votingEscrowContract.target);
 
         //Deploy Minter
         minterContract = await deployContract("Minter");
-        await minterContract.initialize(voterContract.target, ve)
+        await minterContract.initialize(voterContract.target, votingEscrowContract.target, rewardsDistriburorContract.target)
+
+
+        //Internal and External Bribe deploy
+        internalBribeContract = await deployContract("InternalBribe")
+        await internalBribeContract.initialize(voterContract.target, contractAddresses)
+        
+        externalBribeContract = await deployContract("ExternalBribe")
+        await externalBribeContract.initialize(voterContract.target, contractAddresses)
+
+
+        //Deploy Gauge
+        gaugeContract = await deployContract("Gauge");
+        await gaugeContract.initialize("0x3d6c56f6855b7Cc746fb80848755B0a9c3770122", internalBribeContract.target, externalBribeContract.target, votingEscrowContract.target, voterContract.target, true, contractAddresses)
+
+
         });
 
         
 
         
 
-        it("01 Test Deploy Viri", async function () {
+        it.skip("01 Test Deploy Viri", async function () {
         console.log("Viri contract: ", viriContract.target);
         console.log("Variable name:", await viriContract.name())
         console.log("Variable symbol:", await viriContract.symbol())
         });
 
-        it("02 Test Deploy veArt", async function () {
+        it.skip("02 Test Deploy veArt", async function () {
         console.log("veArt address: ", veArtProxy.target);
         });
 
-        it("03 Test Deploy voting Escrow", async function () {
+        it.skip("03 Test Deploy voting Escrow", async function () {
         console.log("VotingEscrow address: ", votingEscrowContract.target);
         });
 
-        it("04 Test Deploy bribeFactory", async function () {
+        it.skip("04 Test Deploy bribeFactory", async function () {
         console.log("internal bribe: ", intBribeImplContract.target);
         console.log("external bribe: ", extBribeImplContract.target);
         console.log("bribe factory address: ", bribeFactoryContract.target)
         });
 
-        it("05 Test Deploy Gauge Factory", async function () {
+        it.skip("05 Test Deploy Gauge Factory", async function () {
         console.log("gauge implementation: ", gaugeImplContract.target);
         console.log("gauge factory: ", gaugeFactoryContract.target)
         });
 
-        it("06 Test Deploy Pair Factory", async function () {
+        it.skip("06 Test Deploy Pair Factory", async function () {
             console.log("Pair implementation: ", pairImplContract.target);
             console.log("pair factory: ", pairFactoryContract.target)
         });
 
-        it("07 Test Deploy Voter", async function () {
+        it.skip("07 Test Deploy Voter", async function () {
             
             console.log("Voter contract: ", voterContract.target)
         });
 
-        it("08 Test Deploy WrappedExternalBribeFactory", async function () {
+        it.skip("08 Test Deploy WrappedExternalBribeFactory", async function () {
             
             console.log("WrappedExternalBribeFactory: ", WrappedExternalBribeFactoryContract.target)
         });
 
-        it("09 Test Deploy Internal/External bribe", async function(){
+        it.skip("09 Test Deploy Internal/External bribe", async function(){
             
             console.log("internal bribe: ", intBribeImplContract.target);
             console.log("external bribe: ", extBribeImplContract.target);
 
         })
 
-        it("10 Test Deploy veSplitter", async function () {
+        it.skip("10 Test Deploy veSplitter", async function () {
             
             console.log("veSplitter: ", veSplitterContract.target)
         });
 
-        it("11 Test Deploy Router", async function () {
+        it.skip("11 Test Deploy Router", async function () {
             console.log("Router: ", routerContract.target);
             console.log("Router2: ", router2Contract.target);
             console.log("ViriLibrary: ", viriLibraryContract.target);
             console.log("Wrapped External Bribe: ", wrappedExternalBribeContract.target);
+        });
+
+        it("12 Test Deploy Minter", async function () {
+            console.log("Internal Bribe contract: ", internalBribeContract.target)
+            console.log("External Bribe contract: ", externalBribeContract.target)
+            console.log("Minter: ", minterContract.target)
+            console.log("veApi: ", veApiContract.target)
+            console.log("Gauge: ", gaugeContract.target)
         });
 
         
