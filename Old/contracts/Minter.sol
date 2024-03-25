@@ -45,7 +45,7 @@ contract Minter is Initializable, IMinter {
         _voter = IVoter(__voter);
         _ve = IVotingEscrow(__ve);
         _rewards_distributor = IRewardsDistributor(__rewards_distributor);
-        active_period = ((block.timestamp + (2 * WEEK)) / WEEK) * WEEK;
+        active_period = ((block.timestamp)  / WEEK) * WEEK;
     }
 
     function init(
@@ -105,7 +105,7 @@ contract Minter is Initializable, IMinter {
     }
 
     // update period can only be called once per cycle (1 week)
-    function update_period() external returns (uint) {
+        function update_period() external returns (uint) {
         uint _period = active_period;
         if (block.timestamp >= _period + WEEK && initer == address(0)) { // only trigger if new week
             _period = (block.timestamp / WEEK) * WEEK;

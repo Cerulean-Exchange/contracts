@@ -45,7 +45,7 @@ contract Minter is Initializable, IMinter {
         _voter = IVoter(__voter);
         _ve = IVotingEscrow(__ve);
         _rewards_distributor = IRewardsDistributor(__rewards_distributor);
-        active_period = ((block.timestamp + (2 * WEEK)) / WEEK) * WEEK;
+        active_period = ((block.timestamp)  / WEEK) * WEEK;
     }
 
     function init(
