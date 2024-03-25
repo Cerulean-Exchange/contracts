@@ -81,9 +81,9 @@ async function main() {
     fs.appendFileSync(path.join(__dirname, 'deployed_contracts.txt'), `extBribeImplContract: ${extBribeImplContract.target}\n`);
     //console.log(contractAddresses);
     //Deploy veSplitter
-    veSplitter = await ethers.getContractFactory("veSplitter");
+    /* veSplitter = await ethers.getContractFactory("veSplitter");
     veSplitterContract = await veSplitter.deploy(voterContract.target);
-    fs.appendFileSync(path.join(__dirname, 'deployed_contracts.txt'), `veSplitterContract: ${veSplitterContract.target}\n`);
+    fs.appendFileSync(path.join(__dirname, 'deployed_contracts.txt'), `veSplitterContract: ${veSplitterContract.target}\n`); */
 
     //Deploy Router
     routerContract = await deployContract("Router")
@@ -103,25 +103,25 @@ async function main() {
     console.log("Wrapped2: ", wrappedExternalBribe2) */
 
     //Deploy WrappedExternalBribe
-    wrappedExternalBribe = await ethers.getContractFactory("WrappedExternalBribeV2");
+    /* wrappedExternalBribe = await ethers.getContractFactory("WrappedExternalBribeV2");
     wrappedExternalBribeContract = await wrappedExternalBribe.deploy(voterContract.target);
-    fs.appendFileSync(path.join(__dirname, 'deployed_contracts.txt'), `wrappedExternalBribeContract: ${wrappedExternalBribeContract.target}\n`);
+    fs.appendFileSync(path.join(__dirname, 'deployed_contracts.txt'), `wrappedExternalBribeContract: ${wrappedExternalBribeContract.target}\n`); */
 
     //Deploy RewardsDistributor
-    rewardsDistriburorContract = await deployContract("RewardsDistributor");
+    /* rewardsDistriburorContract = await deployContract("RewardsDistributor");
     await rewardsDistriburorContract.initialize(votingEscrowContract.target)
-    fs.appendFileSync(path.join(__dirname, 'deployed_contracts.txt'), `rewardsDistributorContract: ${rewardsDistributorContract.target}\n`); 
+    fs.appendFileSync(path.join(__dirname, 'deployed_contracts.txt'), `rewardsDistributorContract: ${rewardsDistributorContract.target}\n`); */ 
 
     
     //Deploy veApi
-    veApi = await ethers.getContractFactory("VE_Api_V2");
+    /* veApi = await ethers.getContractFactory("VE_Api_V2");
     veApiContract = await veApi.deploy("0x3d6c56f6855b7Cc746fb80848755B0a9c3770122", viriContract.target, voterContract.target, votingEscrowContract.target);
-    fs.appendFileSync(path.join(__dirname, 'deployed_contracts.txt'), `veApiContract: ${veApiContract.target}\n`);
+    fs.appendFileSync(path.join(__dirname, 'deployed_contracts.txt'), `veApiContract: ${veApiContract.target}\n`); */
 
     //Deploy Minter
-    minterContract = await deployContract("Minter");
+   /*  minterContract = await deployContract("Minter");
     await minterContract.initialize(voterContract.target, votingEscrowContract.target, rewardsDistriburorContract.target)
-    fs.appendFileSync(path.join(__dirname, 'deployed_contracts.txt'), `minterContract: ${minterContract.target}\n`);
+    fs.appendFileSync(path.join(__dirname, 'deployed_contracts.txt'), `minterContract: ${minterContract.target}\n`); */
 
 
     //Internal and External Bribe deploy
@@ -135,9 +135,9 @@ async function main() {
 
 
     //Deploy Gauge
-    gaugeContract = await deployContract("Gauge");
+    /* gaugeContract = await deployContract("Gauge");
     await gaugeContract.initialize("0x3d6c56f6855b7Cc746fb80848755B0a9c3770122", internalBribeContract.target, externalBribeContract.target, votingEscrowContract.target, voterContract.target, true, contractAddresses)
-    fs.appendFileSync(path.join(__dirname, 'deployed_contracts.txt'), `gaugeContract: ${gaugeContract.target}\n`);
+    fs.appendFileSync(path.join(__dirname, 'deployed_contracts.txt'), `gaugeContract: ${gaugeContract.target}\n`); */
 
     console.log("Todos los contratos han sido desplegados e inicializados correctamente");
 }

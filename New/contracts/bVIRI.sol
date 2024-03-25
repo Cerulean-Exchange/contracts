@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+/* // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
@@ -159,4 +159,4 @@ contract bViri is Initializable, OFTUpgradeable {
     function setEndpoint(address _endpoint) public onlyOwner {
         lzEndpoint = ILayerZeroEndpointUpgradeable(_endpoint);
     }
-}
+} */
