@@ -93,7 +93,6 @@ contract MinterTest is BaseTest {
 
     function initializeVotingEscrow() public {
         deployBase();
-
         address[] memory claimants = new address[](1);
         claimants[0] = address(owner);
         uint256[] memory amounts = new uint256[](1);
@@ -108,56 +107,88 @@ contract MinterTest is BaseTest {
     function testMinterWeeklyDistribute() public {
         initializeVotingEscrow();
 
+        uint256 weekly = minter.weekly();
+        console2.log("Weekly:",weekly / 1e18);
+
         minter.update_period();
         assertEq(minter.weekly(), 100_000 * 1e18);
-        vm.warp(block.timestamp + 86400 * 7);
-        vm.roll(block.number + 1);
-        minter.update_period();
+
+        changeEpoch(2);
+
         assertEq(distributor.claimable(1), 0);
         assertLt(minter.weekly(), 100_000 * 1e18); 
-        vm.warp(block.timestamp + 86400 * 7);
-        vm.roll(block.number + 1);
-        minter.update_period();
+
+        changeEpoch(3);
+
         uint256 claimable = distributor.claimable(1);
         
-        //TODO
-        //Dejar este assert o quitarlo?
         assertEq(claimable, 0);
         distributor.claim(1);
         assertEq(distributor.claimable(1), 0);
 
-        uint256 weekly = minter.weekly();
-        console2.log(weekly);
-        console2.log(minter.calculate_growth(weekly));
-        console2.log(VIRI.totalSupply());
-        console2.log(escrow.totalSupply());
 
-        vm.warp(block.timestamp + 86400 * 7);
-        vm.roll(block.number + 1);
-        minter.update_period();
-        console2.log(distributor.claimable(1));
+        /* console2.log("Total VIRI supply",VIRI.totalSupply());
+        console2.log("Escrow total suply",escrow.totalSupply()); */
+
+        changeEpoch(4);
+
         distributor.claim(1);
-        vm.warp(block.timestamp + 86400 * 7);
-        vm.roll(block.number + 1);
-        minter.update_period();
-        console2.log(distributor.claimable(1));
+
+        changeEpoch(5);
+
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = 1;
         distributor.claim_many(tokenIds);
-        vm.warp(block.timestamp + 86400 * 7);
-        vm.roll(block.number + 1);
-        minter.update_period();
-        console2.log(distributor.claimable(1));
+
+        changeEpoch(6);
+
         distributor.claim(1);
-        vm.warp(block.timestamp + 86400 * 7);
-        vm.roll(block.number + 1);
-        minter.update_period();
-        console2.log(distributor.claimable(1));
+
+        changeEpoch(7);
+
+        //console2.log(distributor.claimable(1));
         distributor.claim_many(tokenIds);
+
+        changeEpoch(8);
+
+        //console2.log("Distributor claimable 1", distributor.claimable(1));
+        distributor.claim(1);
+
+        fromEpoch8To30();
+    }
+
+    function fromEpoch8To30() public{
+        changeEpoch(9);
+        changeEpoch(10);
+
+        changeEpoch(11);
+        changeEpoch(12);
+        changeEpoch(13);
+        changeEpoch(14);
+        changeEpoch(15);
+        changeEpoch(16);
+        changeEpoch(17);
+        changeEpoch(18);
+        changeEpoch(19);
+        changeEpoch(20);
+
+        changeEpoch(21);
+        changeEpoch(22);
+        changeEpoch(23);
+        changeEpoch(24);
+        changeEpoch(25);
+        changeEpoch(26);
+        changeEpoch(27);
+        changeEpoch(28);
+        changeEpoch(29);
+        changeEpoch(30);
+    }
+
+    function changeEpoch(uint epoch) public{
         vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
+        console2.log("\x1b[33mEpoch:\x1b[0m", "\x1b[33m", epoch, "\x1b[0m");
+        console2.log("weekly_emission ", minter.weekly_emission() / 1e18);
         minter.update_period();
-        console2.log(distributor.claimable(1));
-        distributor.claim(1);
     }
 }
