@@ -154,7 +154,7 @@ contract MinterTeamEmissions is BaseTest {
         minter.update_period(); // new period
         uint256 afterTeamSupply = VIRI.balanceOf(address(team));
         uint256 newTeamViri = afterTeamSupply - beforeTeamSupply;
-        assertEq(((weekly + growth + newTeamViri) * 60) / 1000, newTeamViri); // check 3% of new emissions to team
+        assertEq(((weekly + growth + newTeamViri) * 60) / 100000, newTeamViri); // check 3% of new emissions to team
 
         vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
@@ -164,7 +164,7 @@ contract MinterTeamEmissions is BaseTest {
         minter.update_period(); // new period
         afterTeamSupply = VIRI.balanceOf(address(team));
         newTeamViri = afterTeamSupply - beforeTeamSupply;
-        assertEq(((weekly + growth + newTeamViri) * 60) / 1000, newTeamViri); // check 3% of new emissions to team
+        assertEq(((weekly + growth + newTeamViri) * 60) / 100000, newTeamViri); // check 3% of new emissions to team
 
         // rate is right even when VIRI is sent to Minter contract
         vm.warp(block.timestamp + 86400 * 7);
@@ -176,7 +176,7 @@ contract MinterTeamEmissions is BaseTest {
         minter.update_period(); // new period
         afterTeamSupply = VIRI.balanceOf(address(team));
         newTeamViri = afterTeamSupply - beforeTeamSupply;
-        assertEq(((weekly + growth + newTeamViri) * 60) / 1000, newTeamViri); // check 3% of new emissions to team
+        assertEq(((weekly + growth + newTeamViri) * 60) / 100000, newTeamViri); // check 3% of new emissions to team
     }
 
     function testChangeTeamEmissionsRate() public {
@@ -207,6 +207,6 @@ contract MinterTeamEmissions is BaseTest {
         minter.update_period(); // new period
         uint256 afterTeamSupply = VIRI.balanceOf(address(team));
         uint256 newTeamViri = afterTeamSupply - beforeTeamSupply;
-        assertEq(((weekly + growth + newTeamViri) * 50) / 1000, newTeamViri); // check 5% of new emissions to team
+        assertEq(((weekly + growth + newTeamViri) * 50) / 100000, newTeamViri); // check 5% of new emissions to team
     }
 }
