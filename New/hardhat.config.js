@@ -6,7 +6,7 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: "https://rpc.coredao.org/",
+        url: "https://rpc.ankr.com/core",
       },
     },
     testnet: {
@@ -23,7 +23,7 @@ module.exports = {
     settings: {
         optimizer: {
             enabled: true,
-            runs: 200,
+            runs: 100,
         },
     },
   },

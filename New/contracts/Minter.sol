@@ -13,9 +13,9 @@ import "contracts/interfaces/IVotingEscrow.sol";
 
 contract Minter is Initializable, IMinter {
     uint internal constant WEEK = 86400 * 7; // allows minting once per week (reset every Thursday 00:00 UTC)
-    uint internal constant EMISSION = 975;
-    uint internal constant TAIL_EMISSION = 2;
-    uint internal constant PRECISION = 1000;
+    uint internal constant EMISSION = 97500;
+    uint internal constant TAIL_EMISSION = 1;
+    uint internal constant PRECISION = 100000;
     IViri public _viri;
     IVoter public _voter;
     IVotingEscrow public _ve;
@@ -45,7 +45,7 @@ contract Minter is Initializable, IMinter {
         _voter = IVoter(__voter);
         _ve = IVotingEscrow(__ve);
         _rewards_distributor = IRewardsDistributor(__rewards_distributor);
-        active_period = ((block.timestamp + (2 * WEEK)) / WEEK) * WEEK;
+        active_period = ((block.timestamp)  / WEEK) * WEEK;
     }
 
     function init(
@@ -86,7 +86,7 @@ contract Minter is Initializable, IMinter {
 
     // emission calculation is 1% of available supply to mint adjusted by circulating / total supply
     function calculate_emission() public view returns (uint) {
-        return (weekly * EMISSION) / PRECISION;
+        return ((weekly * EMISSION) / PRECISION);
     }
 
     // weekly emission takes the max of calculated (aka target) emission versus circulating tail end emission
@@ -131,5 +131,4 @@ contract Minter is Initializable, IMinter {
         }
         return _period;
     }
-}
 }
