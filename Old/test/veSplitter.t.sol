@@ -190,7 +190,7 @@ contract veSplitterTest is Test {
         amounts[0] = 1 ether;
         amounts[1] = 2 ether;
         uint[] memory locks = new uint[](2);
-        locks[0] = 7 days;
+        locks[0] = 1 days;
         locks[1] = 14 days;
 
         voter.poke(tokenId);

@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.13;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "contracts/interfaces/IViri.sol";
 
-contract Viri is Initializable, IViri {
+contract Viri is IViri {
 
-    string public constant name = "Viridian";
+    string public constant name = "Viri";
     string public constant symbol = "VIRI";
     uint8 public constant decimals = 18;
     uint public totalSupply = 0;
@@ -22,7 +21,7 @@ contract Viri is Initializable, IViri {
     event Transfer(address indexed from, address indexed to, uint value);
     event Approval(address indexed owner, address indexed spender, uint value);
 
-    function initialize() external initializer {
+    constructor() {
         minter = msg.sender;
     }
 
@@ -42,7 +41,7 @@ contract Viri is Initializable, IViri {
         merkleClaim = _merkleClaim;
     }
 
-    // Initial mint: total 40M
+    // Initial mint: total 6M
     function initialMint(address _recipient) external {
         require(msg.sender == minter && !initialMinted);
         initialMinted = true;
