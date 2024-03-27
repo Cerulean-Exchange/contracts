@@ -528,7 +528,7 @@ contract VotingEscrow is Initializable, IERC721Upgradeable, IERC721MetadataUpgra
     mapping(uint => int128) public slope_changes; // time -> signed slope change
     uint public supply;
 
-    uint internal constant WEEK = 1 weeks;
+    uint internal constant WEEK = 1 days;
     uint internal constant MAXTIME = 1 * 365 * 86400;
     int128 internal constant iMAXTIME = 1 * 365 * 86400;
     uint internal constant MULTIPLIER = 1 ether;
