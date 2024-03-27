@@ -1,6 +1,6 @@
 pragma solidity 0.8.13;
 
-import './BaseTest.sol';
+import "../test/BaseTest.sol";
 import "contracts/EquilibreTvlOracle.sol";
 import "contracts/Viri.sol";
 
@@ -11,16 +11,9 @@ contract EquilibreTvlOracleTest is BaseTest {
     EquilibreTvlOracle oracle_viri;
     Pair poolViri;
     function setUp() public {
-        deployProxyAdmin();
         deployCoins();
-        Pair implPair = new Pair();
-        PairFactory implPairFactory = new PairFactory();
-        proxy = new TransparentUpgradeableProxy(address(implPairFactory), address(admin), abi.encodeWithSelector(PairFactory.initialize.selector, address(implPair)));
-        factory = PairFactory(address(proxy));
-
-        Router2 implRouter2 = new Router2();
-        proxy = new TransparentUpgradeableProxy(address(implRouter2), address(admin), abi.encodeWithSelector(Router.initialize.selector, address(factory), address(WETH)));
-        router2 = Router2(payable(address(proxy)));
+        factory = new PairFactory();
+        router2 = new Router2(address(factory), address(WETH));
 
         // weth/usdc
         USDC.mint(address(this), TOKEN_100e6);

@@ -1,7 +1,7 @@
 pragma solidity 0.8.13;
 
-import './BaseTest.sol';
-import "contracts/mock/TaxToken2.sol";
+import "../test/BaseTest.sol";
+import "./mock/TaxToken2.sol";
 
 contract TaxToken2Test is BaseTest {
 
@@ -14,18 +14,9 @@ contract TaxToken2Test is BaseTest {
     uint TOKEN_100 = 100 * 1e18;
     uint liquidityAdded;
     function setUp() public {
-        deployProxyAdmin();
-        Pair implPair = new Pair();
-        PairFactory implPairFactory = new PairFactory();
-        proxy = new TransparentUpgradeableProxy(address(implPairFactory), address(admin), abi.encodeWithSelector(PairFactory.initialize.selector, address(implPair)));
-        factory = PairFactory(address(proxy));
-
+        factory = new PairFactory();
         WETH = new TestWETH();
-        
-        Router2 implRouter = new Router2();
-        proxy = new TransparentUpgradeableProxy(address(implRouter), address(admin), abi.encodeWithSelector(Router.initialize.selector, address(factory), address(WETH)));
-        router2 = Router2(payable(address(proxy)));
-        
+        router2 = new Router2(address(factory), address(WETH));
         taxToken = new TaxToken2();
         taxToken.initializeRouter(address(router2));
         _pair = Pair(factory.getPair(address(taxToken), address(WETH), false));
@@ -87,7 +78,7 @@ contract TaxToken2Test is BaseTest {
         uint amountEthAfterRemove = address(this).balance;
         console2.log('amountTokenAfterRemove', taxToken.balanceOf(address(this)));
         console2.log('amountEthAfterRemove', amountEthAfterRemove/1e18);
-        assertEq(amountEthAfterRemove, amountEthBefore - 999_005);
+        assertEq(amountEthAfterRemove, amountEthBefore - 999_004);
 
     }
 }

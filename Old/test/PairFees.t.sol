@@ -1,11 +1,10 @@
 // 1:1 with Hardhat test
 pragma solidity 0.8.13;
 
-import "./BaseTest.sol";
+import "../test/BaseTest.sol";
 
 contract PairFeesTest is BaseTest {
     function setUp() public {
-        deployProxyAdmin();
         deployOwners();
         deployCoins();
         mintStables();
@@ -71,7 +70,7 @@ contract PairFeesTest is BaseTest {
     function testFeeManagerCannotSetFeeAboveMax() public {
         // TODO: investigate why it does not revert:
         vm.expectRevert(abi.encodePacked("fee too high"));
-        factory.setFee(true, 201); // 201 bps = 2.01%
+        factory.setFee(true, 60); // 60 bps = 0.6%
     }
 
     function testFeeManagerCannotSetZeroFee() public {

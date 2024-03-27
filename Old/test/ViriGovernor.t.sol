@@ -1,6 +1,6 @@
 pragma solidity 0.8.13;
 
-import "./BaseTest.sol";
+import "../test/BaseTest.sol";
 import "contracts/ViriGovernor.sol";
 
 contract ViriGovernorTest is BaseTest {
@@ -15,7 +15,6 @@ contract ViriGovernorTest is BaseTest {
     ViriGovernor governor;
 
     function setUp() public {
-        deployProxyAdmin();
         deployOwners();
         deployCoins();
         mintStables();
@@ -26,10 +25,7 @@ contract ViriGovernorTest is BaseTest {
         mintViri(owners, amounts);
 
         VeArtProxy artProxy = new VeArtProxy();
-
-        VotingEscrow implEscrow = new VotingEscrow();
-        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VIRI), address(artProxy)));
-        escrow = VotingEscrow(address(proxy));
+        escrow = new VotingEscrow(address(VIRI), address(artProxy));
 
         VIRI.approve(address(escrow), 97 * TOKEN_1);
         escrow.create_lock(97 * TOKEN_1, 1 * 365 * 86400);
@@ -48,31 +44,15 @@ contract ViriGovernorTest is BaseTest {
         FRAX.approve(address(router), TOKEN_100K);
         router.addLiquidity(address(FRAX), address(USDC), true, TOKEN_100K, USDC_100K, TOKEN_100K, USDC_100K, address(owner), block.timestamp);
 
-        Gauge implGauge = new Gauge();
-        GaugeFactory implGaugeFactory = new GaugeFactory();
-        proxy = new TransparentUpgradeableProxy(address(implGaugeFactory), address(admin), abi.encodeWithSelector(GaugeFactory.initialize.selector, address(implGauge)));
-        gaugeFactory = GaugeFactory(address(proxy));
-
-        InternalBribe implInternalBribe = new InternalBribe();
-        ExternalBribe implExternalBribe = new ExternalBribe();
-        BribeFactory implBribeFactory = new BribeFactory();
-        proxy = new TransparentUpgradeableProxy(address(implBribeFactory), address(admin), abi.encodeWithSelector(BribeFactory.initialize.selector, address(implInternalBribe), address(implExternalBribe)));
-        bribeFactory = BribeFactory(address(proxy));
-
-        Voter implVoter = new Voter();
-        proxy = new TransparentUpgradeableProxy(address(implVoter), address(admin), abi.encodeWithSelector(Voter.initialize.selector, address(escrow), address(factory), address(gaugeFactory), address(bribeFactory)));
-        voter = Voter(address(proxy));
+        gaugeFactory = new GaugeFactory();
+        bribeFactory = new BribeFactory();
+        voter = new Voter(address(escrow), address(factory), address(gaugeFactory), address(bribeFactory));
 
         escrow.setVoter(address(voter));
 
-        RewardsDistributor implDistributor = new RewardsDistributor();
-        proxy = new TransparentUpgradeableProxy(address(implDistributor), address(admin), abi.encodeWithSelector(RewardsDistributor.initialize.selector, address(escrow)));
-        distributor = RewardsDistributor(address(proxy));
+        distributor = new RewardsDistributor(address(escrow));
 
-        Minter implMinter = new Minter();
-        proxy = new TransparentUpgradeableProxy(address(implMinter), address(admin), abi.encodeWithSelector(Minter.initialize.selector, address(voter), address(escrow), address(distributor)));
-        minter = Minter(address(proxy));
-        
+        minter = new Minter(address(voter), address(escrow), address(distributor));
         distributor.setDepositor(address(minter));
         VIRI.setMinter(address(minter));
 
@@ -83,9 +63,7 @@ contract ViriGovernorTest is BaseTest {
         gauge = Gauge(gaugeAddress);
         bribe = InternalBribe(bribeAddress);
 
-        ViriGovernor implViriGovernor = new ViriGovernor();
-        proxy = new TransparentUpgradeableProxy(address(implViriGovernor), address(admin), abi.encodeWithSelector(ViriGovernor.initialize.selector, escrow));
-        governor = ViriGovernor(payable(address(proxy)));
+        governor = new ViriGovernor(escrow);
         voter.setGovernor(address(governor));
     }
 
@@ -172,7 +150,7 @@ contract ViriGovernorTest is BaseTest {
         // vote
         vm.startPrank(address(owner2));
         governor.castVote(pid, 1);
-        vm.warp(block.timestamp + 1 weeks); // voting period
+        vm.warp(block.timestamp + 1 days); // voting period
         vm.stopPrank();
 
         // execute
@@ -201,7 +179,7 @@ contract ViriGovernorTest is BaseTest {
         // vote
         vm.startPrank(address(owner));
         governor.castVote(pid, 1);
-        vm.warp(block.timestamp + 1 weeks); // voting period
+        vm.warp(block.timestamp + 1 days); // voting period
         vm.stopPrank();
 
         // execute

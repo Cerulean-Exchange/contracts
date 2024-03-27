@@ -1,7 +1,7 @@
 // 1:1 with Hardhat test
 pragma solidity 0.8.13;
 
-import "./BaseTest.sol";
+import "../test/BaseTest.sol";
 
 contract MinterTeamEmissions is BaseTest {
     VotingEscrow escrow;
@@ -13,9 +13,8 @@ contract MinterTeamEmissions is BaseTest {
     TestOwner team;
 
     function setUp() public {
-        vm.warp(block.timestamp + 1 weeks); // put some initial time in
+        vm.warp(block.timestamp + 1 days); // put some initial time in
 
-        deployProxyAdmin();
         deployOwners();
         deployCoins();
         mintStables();
@@ -25,52 +24,32 @@ contract MinterTeamEmissions is BaseTest {
         mintViri(owners, amountsViri);
         team = new TestOwner();
         VeArtProxy artProxy = new VeArtProxy();
-
-        VotingEscrow implEscrow = new VotingEscrow();
-        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VIRI), address(artProxy)));
-        escrow = VotingEscrow(address(proxy));
-
-        Pair implPair = new Pair();
-        PairFactory implPairFactory = new PairFactory();
-        proxy = new TransparentUpgradeableProxy(address(implPairFactory), address(admin), abi.encodeWithSelector(PairFactory.initialize.selector, address(implPair)));
-        factory = PairFactory(address(proxy));
-
-        Router implRouter = new Router();
-        proxy = new TransparentUpgradeableProxy(address(implRouter), address(admin), abi.encodeWithSelector(Router.initialize.selector, address(factory), address(owner)));
-        router = Router(payable(address(proxy)));
-        
-        Gauge implGauge = new Gauge();
-        GaugeFactory implGaugeFactory = new GaugeFactory();
-        proxy = new TransparentUpgradeableProxy(address(implGaugeFactory), address(admin), abi.encodeWithSelector(GaugeFactory.initialize.selector, address(implGauge)));
-        gaugeFactory = GaugeFactory(address(proxy));
-
-        InternalBribe implInternalBribe = new InternalBribe();
-        ExternalBribe implExternalBribe = new ExternalBribe();
-        BribeFactory implBribeFactory = new BribeFactory();
-        proxy = new TransparentUpgradeableProxy(address(implBribeFactory), address(admin), abi.encodeWithSelector(BribeFactory.initialize.selector, address(implInternalBribe), address(implExternalBribe)));
-        bribeFactory = BribeFactory(address(proxy));
-
-        Voter implVoter = new Voter();
-        proxy = new TransparentUpgradeableProxy(address(implVoter), address(admin), abi.encodeWithSelector(Voter.initialize.selector, address(escrow), address(factory), address(gaugeFactory), address(bribeFactory)));
-        voter = Voter(address(proxy));
+        escrow = new VotingEscrow(address(VIRI), address(artProxy));
+        factory = new PairFactory();
+        router = new Router(address(factory), address(owner));
+        gaugeFactory = new GaugeFactory();
+        bribeFactory = new BribeFactory();
+        voter = new Voter(
+            address(escrow),
+            address(factory),
+            address(gaugeFactory),
+            address(bribeFactory)
+        );
 
         address[] memory tokens = new address[](2);
         tokens[0] = address(FRAX);
         tokens[1] = address(VIRI);
-        voter.init(tokens, address(owner));
+        voter.initialize(tokens, address(owner));
         VIRI.approve(address(escrow), TOKEN_1);
         escrow.create_lock(TOKEN_1, 1 * 365 * 86400);
-
-        RewardsDistributor implDistributor = new RewardsDistributor();
-        proxy = new TransparentUpgradeableProxy(address(implDistributor), address(admin), abi.encodeWithSelector(RewardsDistributor.initialize.selector, address(escrow)));
-        distributor = RewardsDistributor(address(proxy));
-
+        distributor = new RewardsDistributor(address(escrow));
         escrow.setVoter(address(voter));
 
-        Minter implMinter = new Minter();
-        proxy = new TransparentUpgradeableProxy(address(implMinter), address(admin), abi.encodeWithSelector(Minter.initialize.selector, address(voter), address(escrow), address(distributor)));
-        minter = Minter(address(proxy));
-
+        minter = new Minter(
+            address(voter),
+            address(escrow),
+            address(distributor)
+        );
         distributor.setDepositor(address(minter));
         VIRI.setMinter(address(minter));
 
@@ -87,7 +66,7 @@ contract MinterTeamEmissions is BaseTest {
             address(owner),
             block.timestamp
         );
-        
+
         address pair = router.pairFor(address(FRAX), address(VIRI), false);
 
         VIRI.approve(address(voter), 5 * TOKEN_100K);
@@ -95,7 +74,7 @@ contract MinterTeamEmissions is BaseTest {
         vm.roll(block.number + 1); // fwd 1 block because escrow.balanceOfNFT() returns 0 in same block
         assertGt(escrow.balanceOfNFT(1), 995063075414519385);
         assertEq(VIRI.balanceOf(address(escrow)), TOKEN_1);
-        
+
         address[] memory pools = new address[](1);
         pools[0] = pair;
         uint256[] memory weights = new uint256[](1);
@@ -105,24 +84,24 @@ contract MinterTeamEmissions is BaseTest {
         address[] memory claimants = new address[](1);
         claimants[0] = address(owner);
         uint256[] memory amountsToMint = new uint256[](1);
-        amountsToMint[0] = TOKEN_1 * 1000;
-        minter.init(claimants, amountsToMint, 100_000 * 1e18);
+        amountsToMint[0] = TOKEN_1M;
+        minter.initialize(claimants, amountsToMint, 100_000 * 1e18);
         assertEq(escrow.ownerOf(2), address(owner));
         assertEq(escrow.ownerOf(3), address(0));
-         vm.roll(block.number + 1);
-        assertEq(VIRI.balanceOf(address(minter)), 99_000 ether );
-    
+        vm.roll(block.number + 1);
+        assertEq(VIRI.balanceOf(address(minter)), 838_000 ether );
+
         uint256 before = VIRI.balanceOf(address(owner));
         minter.update_period(); // initial period week 1
         uint256 after_ = VIRI.balanceOf(address(owner));
         assertEq(minter.weekly(), 100_000 * 1e18);
         assertEq(after_ - before, 0);
-        vm.warp(block.timestamp + 86400 * 7);
+        vm.warp(block.timestamp + 86400 * 1);
         vm.roll(block.number + 1);
         before = VIRI.balanceOf(address(owner));
         minter.update_period(); // initial period week 2
         after_ = VIRI.balanceOf(address(owner));
-        assertLt(minter.weekly(), 6 * TOKEN_1M); // <6M for week shift */ 
+        assertLt(minter.weekly(), 15 * TOKEN_1M); // <15M for week shift
     }
 
     function testChangeTeam() public {
@@ -146,7 +125,7 @@ contract MinterTeamEmissions is BaseTest {
         owner.setTeam(address(minter), address(team));
         team.acceptTeam(address(minter));
 
-        vm.warp(block.timestamp + 86400 * 7);
+        vm.warp(block.timestamp + 86400 * 1);
         vm.roll(block.number + 1);
         uint256 beforeTeamSupply = VIRI.balanceOf(address(team));
         uint256 weekly = minter.weekly_emission();
@@ -154,9 +133,9 @@ contract MinterTeamEmissions is BaseTest {
         minter.update_period(); // new period
         uint256 afterTeamSupply = VIRI.balanceOf(address(team));
         uint256 newTeamViri = afterTeamSupply - beforeTeamSupply;
-        assertEq(((weekly + growth + newTeamViri) * 60) / 100000, newTeamViri); // check 3% of new emissions to team
+        assertEq(((weekly + growth + newTeamViri) * 60) / 1000, newTeamViri); // check 3% of new emissions to team
 
-        vm.warp(block.timestamp + 86400 * 7);
+        vm.warp(block.timestamp + 86400 * 1);
         vm.roll(block.number + 1);
         beforeTeamSupply = VIRI.balanceOf(address(team));
         weekly = minter.weekly_emission();
@@ -164,10 +143,10 @@ contract MinterTeamEmissions is BaseTest {
         minter.update_period(); // new period
         afterTeamSupply = VIRI.balanceOf(address(team));
         newTeamViri = afterTeamSupply - beforeTeamSupply;
-        assertEq(((weekly + growth + newTeamViri) * 60) / 100000, newTeamViri); // check 3% of new emissions to team
+        assertEq(((weekly + growth + newTeamViri) * 60) / 1000, newTeamViri); // check 3% of new emissions to team
 
         // rate is right even when VIRI is sent to Minter contract
-        vm.warp(block.timestamp + 86400 * 7);
+        vm.warp(block.timestamp + 86400 * 1);
         vm.roll(block.number + 1);
         owner2.transfer(address(VIRI), address(minter), 1e25);
         beforeTeamSupply = VIRI.balanceOf(address(team));
@@ -176,7 +155,7 @@ contract MinterTeamEmissions is BaseTest {
         minter.update_period(); // new period
         afterTeamSupply = VIRI.balanceOf(address(team));
         newTeamViri = afterTeamSupply - beforeTeamSupply;
-        assertEq(((weekly + growth + newTeamViri) * 60) / 100000, newTeamViri); // check 3% of new emissions to team
+        assertEq(((weekly + growth + newTeamViri) * 60) / 1000, newTeamViri); // check 3% of new emissions to team
     }
 
     function testChangeTeamEmissionsRate() public {
@@ -199,7 +178,7 @@ contract MinterTeamEmissions is BaseTest {
         // new rate in bounds
         team.setTeamEmissions(address(minter), 50);
 
-        vm.warp(block.timestamp + 86400 * 7);
+        vm.warp(block.timestamp + 86400 * 1);
         vm.roll(block.number + 1);
         uint256 beforeTeamSupply = VIRI.balanceOf(address(team));
         uint256 weekly = minter.weekly_emission();
@@ -207,6 +186,6 @@ contract MinterTeamEmissions is BaseTest {
         minter.update_period(); // new period
         uint256 afterTeamSupply = VIRI.balanceOf(address(team));
         uint256 newTeamViri = afterTeamSupply - beforeTeamSupply;
-        assertEq(((weekly + growth + newTeamViri) * 50) / 100000, newTeamViri); // check 5% of new emissions to team
+        assertEq(((weekly + growth + newTeamViri) * 50) / 1000, newTeamViri); // check 5% of new emissions to team
     }
 }
