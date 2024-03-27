@@ -30,21 +30,21 @@ contract StakingTest is BaseTest {
         deployBaseCoins();
 
         VIRI.approve(address(escrow), TOKEN_1);
-        escrow.create_lock(TOKEN_1, 4 * 365 * 86400);
+        escrow.create_lock(TOKEN_1, 1 * 365 * 86400);
     }
 
     function createLock2() public {
         createLock();
 
         owner2.approve(address(VIRI), address(escrow), TOKEN_1);
-        owner2.create_lock(address(escrow), TOKEN_1, 4 * 365 * 86400);
+        owner2.create_lock(address(escrow), TOKEN_1, 1 * 365 * 86400);
     }
 
     function createLock3() public {
         createLock2();
 
         owner3.approve(address(VIRI), address(escrow), TOKEN_1);
-        owner3.create_lock(address(escrow), TOKEN_1, 4 * 365 * 86400);
+        owner3.create_lock(address(escrow), TOKEN_1, 1 * 365 * 86400);
     }
 
     function deployFactory() public {

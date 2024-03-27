@@ -13,7 +13,7 @@ contract veSplitter is Initializable{
     IERC20 public token;
 
     uint internal constant MINTIME = 86400;
-    uint internal constant MAXTIME = 4 * 365 * 86400;
+    uint internal constant MAXTIME = 1 * 365 * 86400;
 
     error TokenIdIsAttached();
     error NftNotApproved();

@@ -133,7 +133,7 @@ contract ViriGovernorTest is BaseTest {
         assertApproxEqAbs(
             pre2 + pre3,
             post2,
-            4 * 365 * 86400 // merge rounds down time lock
+            1 * 365 * 86400 // merge rounds down time lock
         );
     }
 

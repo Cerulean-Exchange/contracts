@@ -37,8 +37,8 @@ contract PairFactory is OwnableUpgradeable, IPairFactory {
         pauser = msg.sender;
         isPaused = false;
         feeManager = msg.sender;
-        stableFee = 5; // 0.05%
-        volatileFee = 20; // 0.20%
+        stableFee = 3; // 0.03%
+        volatileFee = 40; // 0.40%
         beacon = new UpgradeableBeacon(implPair);
     }
 

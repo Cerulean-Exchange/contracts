@@ -15,7 +15,7 @@ import {IVotingEscrow} from "contracts/interfaces/IVotingEscrow.sol";
 /// @author Modified from Solidly (https://github.com/solidlyexchange/solidly/blob/master/contracts/ve.sol)
 /// @author Modified from Curve (https://github.com/curvefi/curve-dao-contracts/blob/master/contracts/VotingEscrow.vy)
 /// @author Modified from Nouns DAO (https://github.com/withtally/my-nft-dao-project/blob/main/contracts/ERC721Checkpointable.sol)
-/// @dev Vote weight decays linearly over time. Lock time cannot be more than `MAXTIME` (4 years).
+/// @dev Vote weight decays linearly over time. Lock time cannot be more than `MAXTIME` (1 years).
 contract VotingEscrow is Initializable, IERC721Upgradeable, IERC721MetadataUpgradeable, IVotesUpgradeable {
     enum DepositType {
         DEPOSIT_FOR_TYPE,

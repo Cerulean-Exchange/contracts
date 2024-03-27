@@ -46,7 +46,7 @@ contract VE_Api_V2 is Ownable {
     }
 
     function name() public pure returns(string memory) {
-        return "Equilibre.s";
+        return "Viridian.s";
     }
 
     function symbol() public pure returns(string memory) {
