@@ -33,7 +33,7 @@ contract ViriGovernor is
     }
 
     function votingPeriod() public pure override(IGovernor) returns (uint256) {
-        return 1 days;
+        return 1 weeks;
     }
 
     function setTeam(address newTeam) external {

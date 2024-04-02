@@ -125,7 +125,7 @@ contract MinterTeamEmissions is BaseTest {
         owner.setTeam(address(minter), address(team));
         team.acceptTeam(address(minter));
 
-        vm.warp(block.timestamp + 86400 * 8);
+        vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         uint256 beforeTeamSupply = VIRI.balanceOf(address(team));
         uint256 weekly = minter.weekly_emission();

@@ -21,7 +21,7 @@ contract Voter is Initializable, IVoter {
     address internal base;
     address public gaugefactory;
     address public bribefactory;
-    uint internal constant DURATION = 1 days; // rewards are released over 1 day
+    uint internal constant DURATION = 7 days; // rewards are released over 1 week
     uint internal _unlocked;
     address public minter;
     address public governor; // should be set to an IGovernor
