@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
-import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
-import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import 'contracts/interfaces/IPairFactory.sol';
 import 'contracts/Pair.sol';
 
-contract PairFactory is OwnableUpgradeable, IPairFactory {
+contract PairFactory is IPairFactory {
 
     bool public isPaused;
     address public pauser;
@@ -27,19 +24,14 @@ contract PairFactory is OwnableUpgradeable, IPairFactory {
     address internal _temp1;
     bool internal _temp;
 
-    UpgradeableBeacon beacon;
-
     event PairCreated(address indexed token0, address indexed token1, bool stable, address pair, uint);
-    event BeaconUpdated(address indexed implPair);
 
-    function initialize(address implPair) external initializer {
-        __Ownable_init();
+    constructor() {
         pauser = msg.sender;
         isPaused = false;
         feeManager = msg.sender;
         stableFee = 3; // 0.03%
         volatileFee = 40; // 0.40%
-        beacon = new UpgradeableBeacon(implPair);
     }
 
     function allPairsLength() external view returns (uint) {
@@ -86,10 +78,10 @@ contract PairFactory is OwnableUpgradeable, IPairFactory {
         return _stable ? stableFee : volatileFee;
     }
 
-    function pairCodeHash() external view returns (bytes32) {
-        return keccak256(abi.encodePacked(type(BeaconProxy).creationCode, abi.encode(address(beacon), abi.encodeWithSelector(Pair.initialize.selector))));
+    function pairCodeHash() external pure returns (bytes32) {
+        return keccak256(type(Pair).creationCode);
     }
- 
+
     function getInitializable() external view returns (address, address, bool) {
         return (_temp0, _temp1, _temp);
     }
@@ -101,18 +93,11 @@ contract PairFactory is OwnableUpgradeable, IPairFactory {
         require(getPair[token0][token1][stable] == address(0), 'PE'); // Pair: PAIR_EXISTS - single check is sufficient
         bytes32 salt = keccak256(abi.encodePacked(token0, token1, stable)); // notice salt includes stable as well, 3 parameters
         (_temp0, _temp1, _temp) = (token0, token1, stable);
-        pair = address(new BeaconProxy{salt:salt}(address(beacon), 
-            abi.encodeWithSelector(Pair.initialize.selector)
-        ));
+        pair = address(new Pair{salt:salt}());
         getPair[token0][token1][stable] = pair;
         getPair[token1][token0][stable] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
         isPair[pair] = true;
         emit PairCreated(token0, token1, stable, pair, allPairs.length);
-    }
-
-    function updateBeacon(address implPair) external onlyOwner {
-        beacon.upgradeTo(implPair);
-        emit BeaconUpdated(implPair);
     }
 }
