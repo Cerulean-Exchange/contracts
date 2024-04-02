@@ -5,7 +5,7 @@ import "contracts/interfaces/IViri.sol";
 
 contract Viri is IViri {
 
-    string public constant name = "Viri";
+    string public constant name = "Viridian";
     string public constant symbol = "VIRI";
     uint8 public constant decimals = 18;
     uint public totalSupply = 0;
