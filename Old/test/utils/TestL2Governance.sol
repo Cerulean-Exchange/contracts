@@ -24,7 +24,7 @@ contract TestL2Governance is
     }
 
     function votingPeriod() public pure override returns (uint256) {
-        return 1;
+        return 7;
     }
 
     function proposalThreshold() public pure override returns (uint256) {

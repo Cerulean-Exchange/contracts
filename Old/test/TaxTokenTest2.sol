@@ -78,7 +78,7 @@ contract TaxToken2Test is BaseTest {
         uint amountEthAfterRemove = address(this).balance;
         console2.log('amountTokenAfterRemove', taxToken.balanceOf(address(this)));
         console2.log('amountEthAfterRemove', amountEthAfterRemove/1e18);
-        assertEq(amountEthAfterRemove, amountEthBefore - 999_004);
+        assertEq(amountEthAfterRemove, amountEthBefore - 999_005);
 
     }
 }

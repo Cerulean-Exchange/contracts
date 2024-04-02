@@ -18,7 +18,7 @@ contract WrappedExternalBribesTest is BaseTest {
     WrappedExternalBribe wxbribe;
 
     function setUp() public {
-        vm.warp(block.timestamp + 1 days); // put some initial time in
+        vm.warp(block.timestamp + 1 weeks); // put some initial time in
 
         deployOwners();
         deployCoins();
@@ -76,7 +76,7 @@ contract WrappedExternalBribesTest is BaseTest {
     }
 
     function testOldBribesAreBroken() public {
-        vm.warp(block.timestamp + 1 days / 2);
+        vm.warp(block.timestamp + 1 weeks / 2);
 
         // create a bribe
         LR.approve(address(xbribe), TOKEN_1);
@@ -94,7 +94,7 @@ contract WrappedExternalBribesTest is BaseTest {
         vm.stopPrank();
 
         // fwd half a day
-        vm.warp(block.timestamp + 1 days / 2);
+        vm.warp(block.timestamp + 1 weeks / 2);
 
         uint256 pre = LR.balanceOf(address(owner));
         uint256 earned = xbribe.earned(address(LR), 1);
@@ -116,7 +116,7 @@ contract WrappedExternalBribesTest is BaseTest {
     }
 
     function testWrappedBribesCanClaimOnlyOnce() public {
-        vm.warp(block.timestamp + 1 days / 2);
+        vm.warp(block.timestamp + 1 weeks / 2);
 
         // create a bribe
         LR.approve(address(wxbribe), TOKEN_1);
@@ -134,7 +134,7 @@ contract WrappedExternalBribesTest is BaseTest {
         vm.stopPrank();
 
         // fwd half a day
-        vm.warp(block.timestamp + 1 days / 2);
+        vm.warp(block.timestamp + 1 weeks / 2);
 
         uint256 pre = LR.balanceOf(address(owner));
         uint256 earned = wxbribe.earned(address(LR), 1);
@@ -158,7 +158,7 @@ contract WrappedExternalBribesTest is BaseTest {
     }
 
     function testWrappedBribesCanClaimOnlyOnceArray() public {
-        vm.warp(block.timestamp + 1 days / 2);
+        vm.warp(block.timestamp + 1 weeks / 2);
 
         // create a bribe
         LR.approve(address(wxbribe), TOKEN_1);
@@ -176,7 +176,7 @@ contract WrappedExternalBribesTest is BaseTest {
         vm.stopPrank();
 
         // fwd half a day
-        vm.warp(block.timestamp + 1 days / 2);
+        vm.warp(block.timestamp + 1 weeks / 2);
 
         uint256 pre = LR.balanceOf(address(owner));
         uint256 earned = wxbribe.earned(address(LR), 1);

@@ -150,7 +150,7 @@ contract ViriGovernorTest is BaseTest {
         // vote
         vm.startPrank(address(owner2));
         governor.castVote(pid, 1);
-        vm.warp(block.timestamp + 1 days); // voting period
+        vm.warp(block.timestamp + 1 weeks); // voting period
         vm.stopPrank();
 
         // execute
@@ -179,7 +179,7 @@ contract ViriGovernorTest is BaseTest {
         // vote
         vm.startPrank(address(owner));
         governor.castVote(pid, 1);
-        vm.warp(block.timestamp + 1 days); // voting period
+        vm.warp(block.timestamp + 1 weeks); // voting period
         vm.stopPrank();
 
         // execute

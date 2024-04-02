@@ -70,7 +70,7 @@ contract PairFeesTest is BaseTest {
     function testFeeManagerCannotSetFeeAboveMax() public {
         // TODO: investigate why it does not revert:
         vm.expectRevert(abi.encodePacked("fee too high"));
-        factory.setFee(true, 60); // 60 bps = 0.6%
+        factory.setFee(true, 201); // 201 bps = 2.01%
     }
 
     function testFeeManagerCannotSetZeroFee() public {

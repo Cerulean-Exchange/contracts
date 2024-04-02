@@ -20,7 +20,7 @@ contract VotingEscrowTest is BaseTest {
 
     function testCreateLock() public {
         VIRI.approve(address(escrow), 1e21);
-        uint256 lockDuration = 1 * 24 * 3600; // 1 day
+        uint256 lockDuration = 7 * 24 * 3600; // 1 week
 
         // Balance should be zero before and 1 after creating the lock
         assertEq(escrow.balanceOf(address(owner)), 0);
@@ -31,15 +31,15 @@ contract VotingEscrowTest is BaseTest {
 
     function testCreateLockOutsideAllowedZones() public {
         VIRI.approve(address(escrow), 1e21);
-        uint256 oneWeek = 1 * 24 * 3600;
-        uint256 fourYears = 1 * 365 * 24 * 3600;
-        vm.expectRevert(abi.encodePacked('Voting lock can be 4 years max'));
-        escrow.create_lock(1e21, fourYears + oneWeek);
+        uint256 oneWeek = 7 * 24 * 3600;
+        uint256 oneYear  = 1 * 365 * 24 * 3600;
+        vm.expectRevert(abi.encodePacked('Voting lock can be 1 year max'));
+        escrow.create_lock(1e21, oneYear  + oneWeek);
     }
 
     function testWithdraw() public {
         VIRI.approve(address(escrow), 1e21);
-        uint256 lockDuration = 1 * 24 * 3600; // 1 day
+        uint256 lockDuration = 7 * 24 * 3600; // 1 week
         escrow.create_lock(1e21, lockDuration);
 
         // Try withdraw early
@@ -62,7 +62,7 @@ contract VotingEscrowTest is BaseTest {
         vm.expectRevert(abi.encodePacked("Query for nonexistent token"));
         escrow.tokenURI(999);
         VIRI.approve(address(escrow), 1e21);
-        uint256 lockDuration = 1 * 24 * 3600; // 1 day
+        uint256 lockDuration = 7 * 24 * 3600; // 1 week
         escrow.create_lock(1e21, lockDuration);
 
         uint256 tokenId = 1;

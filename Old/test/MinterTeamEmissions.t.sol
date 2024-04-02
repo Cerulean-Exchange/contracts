@@ -13,7 +13,7 @@ contract MinterTeamEmissions is BaseTest {
     TestOwner team;
 
     function setUp() public {
-        vm.warp(block.timestamp + 1 days); // put some initial time in
+        vm.warp(block.timestamp + 1 weeks); // put some initial time in
 
         deployOwners();
         deployCoins();
@@ -84,24 +84,24 @@ contract MinterTeamEmissions is BaseTest {
         address[] memory claimants = new address[](1);
         claimants[0] = address(owner);
         uint256[] memory amountsToMint = new uint256[](1);
-        amountsToMint[0] = TOKEN_1M;
+        amountsToMint[0] = TOKEN_1 * 1000;
         minter.initialize(claimants, amountsToMint, 100_000 * 1e18);
         assertEq(escrow.ownerOf(2), address(owner));
         assertEq(escrow.ownerOf(3), address(0));
         vm.roll(block.number + 1);
-        assertEq(VIRI.balanceOf(address(minter)), 838_000 ether );
+        assertEq(VIRI.balanceOf(address(minter)), 99_000 ether );
 
         uint256 before = VIRI.balanceOf(address(owner));
         minter.update_period(); // initial period week 1
         uint256 after_ = VIRI.balanceOf(address(owner));
         assertEq(minter.weekly(), 100_000 * 1e18);
         assertEq(after_ - before, 0);
-        vm.warp(block.timestamp + 86400 * 1);
+        vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         before = VIRI.balanceOf(address(owner));
         minter.update_period(); // initial period week 2
         after_ = VIRI.balanceOf(address(owner));
-        assertLt(minter.weekly(), 15 * TOKEN_1M); // <15M for week shift
+        assertLt(minter.weekly(), 6 * TOKEN_1M); 
     }
 
     function testChangeTeam() public {
@@ -125,7 +125,7 @@ contract MinterTeamEmissions is BaseTest {
         owner.setTeam(address(minter), address(team));
         team.acceptTeam(address(minter));
 
-        vm.warp(block.timestamp + 86400 * 1);
+        vm.warp(block.timestamp + 86400 * 8);
         vm.roll(block.number + 1);
         uint256 beforeTeamSupply = VIRI.balanceOf(address(team));
         uint256 weekly = minter.weekly_emission();
@@ -133,9 +133,9 @@ contract MinterTeamEmissions is BaseTest {
         minter.update_period(); // new period
         uint256 afterTeamSupply = VIRI.balanceOf(address(team));
         uint256 newTeamViri = afterTeamSupply - beforeTeamSupply;
-        assertEq(((weekly + growth + newTeamViri) * 60) / 1000, newTeamViri); // check 3% of new emissions to team
+        assertEq(((weekly + growth + newTeamViri) * 60) / 100000, newTeamViri); // check 3% of new emissions to team
 
-        vm.warp(block.timestamp + 86400 * 1);
+        vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         beforeTeamSupply = VIRI.balanceOf(address(team));
         weekly = minter.weekly_emission();
@@ -143,10 +143,10 @@ contract MinterTeamEmissions is BaseTest {
         minter.update_period(); // new period
         afterTeamSupply = VIRI.balanceOf(address(team));
         newTeamViri = afterTeamSupply - beforeTeamSupply;
-        assertEq(((weekly + growth + newTeamViri) * 60) / 1000, newTeamViri); // check 3% of new emissions to team
+        assertEq(((weekly + growth + newTeamViri) * 60) / 100000, newTeamViri); // check 3% of new emissions to team
 
         // rate is right even when VIRI is sent to Minter contract
-        vm.warp(block.timestamp + 86400 * 1);
+        vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         owner2.transfer(address(VIRI), address(minter), 1e25);
         beforeTeamSupply = VIRI.balanceOf(address(team));
@@ -155,7 +155,7 @@ contract MinterTeamEmissions is BaseTest {
         minter.update_period(); // new period
         afterTeamSupply = VIRI.balanceOf(address(team));
         newTeamViri = afterTeamSupply - beforeTeamSupply;
-        assertEq(((weekly + growth + newTeamViri) * 60) / 1000, newTeamViri); // check 3% of new emissions to team
+        assertEq(((weekly + growth + newTeamViri) * 60) / 100000, newTeamViri); // check 3% of new emissions to team
     }
 
     function testChangeTeamEmissionsRate() public {
@@ -178,7 +178,7 @@ contract MinterTeamEmissions is BaseTest {
         // new rate in bounds
         team.setTeamEmissions(address(minter), 50);
 
-        vm.warp(block.timestamp + 86400 * 1);
+        vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         uint256 beforeTeamSupply = VIRI.balanceOf(address(team));
         uint256 weekly = minter.weekly_emission();
@@ -186,6 +186,6 @@ contract MinterTeamEmissions is BaseTest {
         minter.update_period(); // new period
         uint256 afterTeamSupply = VIRI.balanceOf(address(team));
         uint256 newTeamViri = afterTeamSupply - beforeTeamSupply;
-        assertEq(((weekly + growth + newTeamViri) * 50) / 1000, newTeamViri); // check 5% of new emissions to team
+        assertEq(((weekly + growth + newTeamViri) * 50) / 100000, newTeamViri); // check 5% of new emissions to team
     }
 }

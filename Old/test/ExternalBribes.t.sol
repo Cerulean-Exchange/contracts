@@ -14,7 +14,7 @@ contract ExternalBribesTest is BaseTest {
     ExternalBribe xbribe;
 
     function setUp() public {
-        vm.warp(block.timestamp + 1 days); // put some initial time in
+        vm.warp(block.timestamp + 1 weeks); // put some initial time in
 
         deployOwners();
         deployCoins();
@@ -70,8 +70,8 @@ contract ExternalBribesTest is BaseTest {
     }
 
     function testCanClaimExternalBribe() public {
-        // fwd half a day
-        vm.warp(block.timestamp + 1 days / 2);
+        // fwd half a week
+        vm.warp(block.timestamp + 1 weeks / 2);
 
         // create a bribe
         LR.approve(address(xbribe), TOKEN_1);
@@ -96,8 +96,8 @@ contract ExternalBribesTest is BaseTest {
         uint256 post = LR.balanceOf(address(owner));
         assertEq(post - pre, 0);
 
-        // fwd half a day
-        vm.warp(block.timestamp + 1 days / 2);
+        // fwd half a week
+        vm.warp(block.timestamp + 1 weeks / 2);
 
         // deliver bribe
         pre = LR.balanceOf(address(owner));
@@ -108,8 +108,8 @@ contract ExternalBribesTest is BaseTest {
     }
 
     function testCanClaimExternalBribeProRata() public {
-        // fwd half a day
-        vm.warp(block.timestamp + 1 days / 2);
+        // fwd half a week
+        vm.warp(block.timestamp + 1 weeks / 2);
 
         // create a bribe
         LR.approve(address(xbribe), TOKEN_1);
@@ -131,8 +131,8 @@ contract ExternalBribesTest is BaseTest {
         address[] memory rewards = new address[](1);
         rewards[0] = address(LR);
 
-        // fwd half a day
-        vm.warp(block.timestamp + 1 days / 2);
+        // fwd half a week
+        vm.warp(block.timestamp + 1 weeks / 2);
 
         // deliver bribe
         uint256 pre = LR.balanceOf(address(owner));
@@ -149,8 +149,8 @@ contract ExternalBribesTest is BaseTest {
     }
 
     function testCanClaimExternalBribeStaggered() public {
-        // fwd half a day
-        vm.warp(block.timestamp + 1 days / 2);
+        // fwd half a week
+        vm.warp(block.timestamp + 1 weeks / 2);
 
         // create a bribe
         LR.approve(address(xbribe), TOKEN_1);
@@ -175,7 +175,7 @@ contract ExternalBribesTest is BaseTest {
         rewards[0] = address(LR);
 
         // fwd
-        vm.warp(block.timestamp + 1 days / 2);
+        vm.warp(block.timestamp + 1 weeks / 2);
 
         // deliver bribe
         uint256 pre = LR.balanceOf(address(owner));

@@ -13,7 +13,7 @@ contract WashTradeTest is BaseTest {
     uint initialBalanceUSDC;
     uint initialBalanceFRAX;
     function deployBaseCoins() public {
-        vm.warp(block.timestamp + 1 days); // put some initial time in
+        vm.warp(block.timestamp + 1 weeks); // put some initial time in
 
         deployOwners();
         deployCoins();
@@ -160,7 +160,7 @@ contract WashTradeTest is BaseTest {
     function voterVoteAndBribeBalanceOf() public {
         voterPokeSelf();
 
-        vm.warp(block.timestamp + 1 days);
+        vm.warp(block.timestamp + 1 weeks);
 
         address[] memory pairs = new address[](2);
         pairs[0] = address(pair);

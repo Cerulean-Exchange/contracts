@@ -94,7 +94,7 @@ contract Emission is Test {
         return bribe.getEpochStart(block.timestamp);
     }
     function testExec() public {
-        vm.warp(block.timestamp + 86400 * 1);
+        vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
 
         gauge_eth_viri = Gauge(voter.createGauge(address(pool_eth_viri)));
@@ -125,7 +125,7 @@ contract Emission is Test {
         console.log('a', viri.balanceOf(address(this))/1e18);
         voter.distro();
         console.log('b', viri.balanceOf(address(this))/1e18);
-        vm.warp(block.timestamp + (86400 * 1)+ 1 );
+        vm.warp(block.timestamp + (86400 * 7)+ 1 );
         vm.roll(block.number + 1);
         console.log('epoch 2', getEpoch());
         voter.distro();

@@ -20,7 +20,7 @@ contract PairTest is BaseTest {
     InternalBribe bribe3;
 
     function deployPairCoins() public {
-        vm.warp(block.timestamp + 1 days); // put some initial time in
+        vm.warp(block.timestamp + 1 weeks); // put some initial time in
 
         deployOwners();
         deployCoins();
@@ -402,7 +402,7 @@ contract PairTest is BaseTest {
     function voterReset() public {
         exitAndGetRewardGaugeStake();
 
-        vm.warp(block.timestamp + 1 days);
+        vm.warp(block.timestamp + 1 weeks);
 
         voter.reset(1);
     }
@@ -430,12 +430,12 @@ contract PairTest is BaseTest {
         pools[0] = address(pair);
         uint256[] memory weights = new uint256[](1);
         weights[0] = 5000;
-        vm.warp(block.timestamp + 1 days);
+        vm.warp(block.timestamp + 1 weeks);
 
         voter.vote(1, pools, weights);
         assertEq(voter.usedWeights(1), escrow.balanceOfNFT(1)); // within 1000
         assertEq(bribe.balanceOf(1), uint256(voter.votes(1, address(pair))));
-        vm.warp(block.timestamp + 1 days);
+        vm.warp(block.timestamp + 1 weeks);
 
         voter.reset(1);
         assertLt(voter.usedWeights(1), escrow.balanceOfNFT(1));
@@ -463,7 +463,7 @@ contract PairTest is BaseTest {
         uint256[] memory weights = new uint256[](2);
         weights[0] = 5000;
         weights[1] = 5000;
-        vm.warp(block.timestamp + 1 days);
+        vm.warp(block.timestamp + 1 weeks);
 
         voter.vote(1, pools, weights);
         weights[0] = 50000;
@@ -741,11 +741,11 @@ contract PairTest is BaseTest {
         voter.claimFees(bribes_, rewards, 1);
         uint256 supply = escrow.totalSupply();
         assertGt(supply, 0);
-        vm.warp(block.timestamp + 4*365*86400);
+        vm.warp(block.timestamp + 1*365*86400);
         vm.roll(block.number + 1);
         assertEq(escrow.balanceOfNFT(1), 0);
         assertEq(escrow.totalSupply(), 0);
-        vm.warp(block.timestamp + 1 days);
+        vm.warp(block.timestamp + 1 weeks);
 
         voter.reset(1);
         escrow.withdraw(1);

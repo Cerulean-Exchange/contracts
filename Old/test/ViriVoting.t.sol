@@ -13,7 +13,7 @@ contract ViriVotingTest is BaseTest {
     TestOwner team;
 
     function setUp() public {
-        vm.warp(block.timestamp + 1 days); // put some initial time in
+        vm.warp(block.timestamp + 1 weeks); // put some initial time in
 
         deployOwners();
         deployCoins();
@@ -96,7 +96,7 @@ contract ViriVotingTest is BaseTest {
         uint256 after_ = VIRI.balanceOf(address(owner));
         assertEq(minter.weekly(), 100_000 * 1e18);
         assertEq(after_ - before, 0);
-        vm.warp(block.timestamp + 86400 * 1);
+        vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         before = VIRI.balanceOf(address(owner));
         minter.update_period(); // initial period week 2
@@ -110,7 +110,7 @@ contract ViriVotingTest is BaseTest {
 
     function testCannotChangeVoteOrResetInSameEpoch() public {
         // vote
-        vm.warp(block.timestamp + 1 days);
+        vm.warp(block.timestamp + 1 weeks);
         address[] memory pools = new address[](1);
         pools[0] = address(pair);
         uint256[] memory weights = new uint256[](1);
@@ -118,7 +118,7 @@ contract ViriVotingTest is BaseTest {
         voter.vote(1, pools, weights);
 
         // fwd half epoch
-        vm.warp(block.timestamp + 1 days / 2);
+        vm.warp(block.timestamp + 1 weeks / 2);
 
         // try voting again and fail
         pools[0] = address(pair2);
@@ -132,7 +132,7 @@ contract ViriVotingTest is BaseTest {
 
     function testCanChangeVoteOrResetInNextEpoch() public {
         // vote
-        vm.warp(block.timestamp + 1 days);
+        vm.warp(block.timestamp + 1 weeks);
         address[] memory pools = new address[](1);
         pools[0] = address(pair);
         uint256[] memory weights = new uint256[](1);
@@ -141,14 +141,14 @@ contract ViriVotingTest is BaseTest {
         voter.vote(1, pools, weights);
 
         // fwd whole epoch
-        vm.warp(block.timestamp + 1 days);
+        vm.warp(block.timestamp + 1 weeks);
 
         // try voting again and fail
         pools[0] = address(pair2);
         voter.vote(1, pools, weights);
 
         // fwd whole epoch
-        vm.warp(block.timestamp + 1 days);
+        vm.warp(block.timestamp + 1 weeks);
 
         voter.reset(1);
     }

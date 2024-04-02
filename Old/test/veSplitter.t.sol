@@ -129,7 +129,7 @@ contract veSplitterTest is Test {
 
         voter.distro();
 
-        vm.warp(block.timestamp + (86400 * 1) + 1);
+        vm.warp(block.timestamp + (86400 * 7) + 1);
         vm.roll(block.number + 1);
 
         voter.distro();
@@ -145,7 +145,7 @@ contract veSplitterTest is Test {
         amounts[0] = 1 ether;
         amounts[1] = 2 ether;
         uint[] memory locks = new uint[](2);
-        locks[0] = 1 days;
+        locks[0] = 7 days;
         locks[1] = 14 days;
 
         voter.poke(tokenId);
@@ -164,7 +164,7 @@ contract veSplitterTest is Test {
         amountsInvalid[0] = 1 ether;
         amountsInvalid[1] = 1 ether;
         uint[] memory locksInvalid = new uint[](1);
-        locksInvalid[0] = 1 days;
+        locksInvalid[0] = 7 days;
 
         vm.expectRevert(abi.encodePacked(veSplitter.InvalidAmountAndLocksData.selector));
         main.split(amountsInvalid, locksInvalid, tokenId);
@@ -183,6 +183,7 @@ contract veSplitterTest is Test {
         assert( balanceOfNft == 3 );
         uint balanceOfTokenAfter = viri.balanceOf(address(this));
         uint tokensReceived = balanceOfTokenAfter - balanceOfTokenBefore;
+        //assert( tokensReceived == 5999897000000000000000000);
         assert( tokensReceived == 39999897000000000000000000);
 
     }

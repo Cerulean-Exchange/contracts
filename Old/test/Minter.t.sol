@@ -12,7 +12,7 @@ contract MinterTest is BaseTest {
     Minter minter;
 
     function deployBase() public {
-        vm.warp(block.timestamp + 1 days); // put some initial time in
+        vm.warp(block.timestamp + 1 weeks); // put some initial time in
 
         deployOwners();
         deployCoins();
@@ -79,52 +79,53 @@ contract MinterTest is BaseTest {
         initializeVotingEscrow();
 
         minter.update_period();
-        assertEq(minter.weekly(), 100_000 * 1e18); // 15M
+        assertEq(minter.weekly(), 100_000 * 1e18); 
         vm.warp(block.timestamp + 86400 * 1);
         vm.roll(block.number + 1);
         minter.update_period();
         assertEq(distributor.claimable(1), 0);
-        assertLt(minter.weekly(), 100_000 * 1e18); // <15M for week shift
+        assertLt(minter.weekly(), 100_000 * 1e18);
         vm.warp(block.timestamp + 86400 * 1);
         vm.roll(block.number + 1);
         minter.update_period();
         uint256 claimable = distributor.claimable(1);
+        //assertEq(claimable, 0);
         assertGt(claimable, 32141062267140);
         distributor.claim(1);
         assertEq(distributor.claimable(1), 0);
 
         uint256 weekly = minter.weekly();
-        console2.log(weekly);
-        console2.log(minter.calculate_growth(weekly));
-        console2.log(VIRI.totalSupply());
-        console2.log(escrow.totalSupply());
+        console2.log("Weekly", weekly);
+        console2.log("Calculate_growth 0", minter.calculate_growth(weekly));
+        console2.log("Viri totalsupply",VIRI.totalSupply());
+        console2.log("escrow total supply",escrow.totalSupply());
 
         vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         minter.update_period();
-        console2.log(distributor.claimable(1));
+        console2.log("Distributor claimable",distributor.claimable(1));
         distributor.claim(1);
         vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         minter.update_period();
-        console2.log(distributor.claimable(1));
+        console2.log("Distributor claimable",distributor.claimable(1));
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = 1;
         distributor.claim_many(tokenIds);
         vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         minter.update_period();
-        console2.log(distributor.claimable(1));
+        console2.log("Distributor claimable",distributor.claimable(1));
         distributor.claim(1);
         vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         minter.update_period();
-        console2.log(distributor.claimable(1));
+        console2.log("Distributor claimable",distributor.claimable(1));
         distributor.claim_many(tokenIds);
         vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         minter.update_period();
-        console2.log(distributor.claimable(1));
+        console2.log("Distributor claimable",distributor.claimable(1));
         distributor.claim(1);
     }
 }
