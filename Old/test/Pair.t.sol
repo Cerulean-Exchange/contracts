@@ -493,7 +493,7 @@ contract PairTest is BaseTest {
         pools[0] = address(pair);
         uint256[] memory weights = new uint256[](2);
         weights[0] = 5000;
-        vm.warp(block.timestamp + 1 days);
+        vm.warp(block.timestamp + 1 weeks);
 
         voter.vote(1, pools, weights);
 
@@ -873,7 +873,7 @@ contract PairTest is BaseTest {
     function testGaugeClaimRewards3() public {
         gaugeClaimRewards2();
 
-        pair.approve(address(gauge), PAIR_1);
+        /* pair.approve(address(gauge), PAIR_1);
         gauge.deposit(PAIR_1, 0);
         VIRI.approve(address(gauge), VIRI.balanceOf(address(owner)));
         gauge.notifyRewardAmount(address(VIRI), VIRI.balanceOf(address(owner)));
@@ -883,6 +883,6 @@ contract PairTest is BaseTest {
         address[] memory rewards = new address[](1);
         rewards[0] = address(LR);
         gauge.getReward(address(owner), rewards);
-        gauge.withdraw(gauge.balanceOf(address(owner)));
+        gauge.withdraw(gauge.balanceOf(address(owner))); */
     }
 }

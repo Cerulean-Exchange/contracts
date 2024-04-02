@@ -11,7 +11,7 @@ import "contracts/interfaces/IVotingEscrow.sol";
 // codifies the minting rules as per ve(3,3), abstracted from the token to support any token that allows minting
 
 contract Minter is IMinter {
-    uint internal constant WEEK = 86400 * 1; // allows minting once per week (reset every Thursday 00:00 UTC)
+    uint internal constant WEEK = 86400 * 7; // allows minting once per week (reset every Thursday 00:00 UTC)
     uint internal constant EMISSION = 97500;
     uint internal constant TAIL_EMISSION = 1;
     uint internal constant PRECISION = 100000;
@@ -105,7 +105,7 @@ contract Minter is IMinter {
     // update period can only be called once per cycle (1 week)
         function update_period() external returns (uint) {
         uint _period = active_period;
-        if (block.timestamp >= _period + WEEK && initer == address(0)) { // only trigger if new week
+        if (block.timestamp >= _period + WEEK && initializer == address(0)) { // only trigger if new week
             _period = (block.timestamp / WEEK) * WEEK;
             active_period = _period;
             weekly = weekly_emission();
