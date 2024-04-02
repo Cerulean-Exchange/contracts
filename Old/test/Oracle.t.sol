@@ -1,18 +1,19 @@
 // 1:1 with Hardhat test
 pragma solidity 0.8.13;
 
-import './BaseTest.sol';
+import "../test/BaseTest.sol";
 
 contract OracleTest is BaseTest {
+    VotingEscrow escrow;
 
     function deployBaseCoins() public {
-        deployProxyAdmin();
         deployOwners();
         deployCoins();
         mintStables();
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = 1e25;
         mintViri(owners, amounts);
+        escrow = VotingEscrow(address(VIRI));
     }
 
     function confirmTokensForFraxUsdc() public {
@@ -77,6 +78,15 @@ contract OracleTest is BaseTest {
         pair.claimFees();
         assertGt(USDC.balanceOf(address(owner)), b);
     }
+
+    function testOracle() public {
+        routerPair1GetAmountsOutAndSwapExactTokensForTokens();
+
+        assertEq(pair.current(address(USDC), 1e9), 999999494004424240546); // hardhat: 999999491983679298588
+        assertEq(pair.current(address(FRAX), 1e21), 999999506); // hardhat: 999999507
+        assertEq(pair.quote(address(FRAX), 1e21, 1), 999999506);
+    }
+}
 
     function testOracle() public {
         routerPair1GetAmountsOutAndSwapExactTokensForTokens();

@@ -1,13 +1,12 @@
 // 1:1 with Hardhat test
 pragma solidity 0.8.13;
 
-import './BaseTest.sol';
+import "../test/BaseTest.sol";
 
 contract VotingEscrowTest is BaseTest {
     VotingEscrow escrow;
 
     function setUp() public {
-        deployProxyAdmin();
         deployOwners();
         deployCoins();
         mintStables();
@@ -16,14 +15,12 @@ contract VotingEscrowTest is BaseTest {
         mintViri(owners, amounts);
 
         VeArtProxy artProxy = new VeArtProxy();
-        VotingEscrow implEscrow = new VotingEscrow();
-        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VIRI), address(artProxy)));
-        escrow = VotingEscrow(address(proxy));
+        escrow = new VotingEscrow(address(VIRI), address(artProxy));
     }
 
     function testCreateLock() public {
         VIRI.approve(address(escrow), 1e21);
-        uint256 lockDuration = 7 * 24 * 3600; // 1 week
+        uint256 lockDuration = 1 * 24 * 3600; // 1 day
 
         // Balance should be zero before and 1 after creating the lock
         assertEq(escrow.balanceOf(address(owner)), 0);
@@ -34,15 +31,15 @@ contract VotingEscrowTest is BaseTest {
 
     function testCreateLockOutsideAllowedZones() public {
         VIRI.approve(address(escrow), 1e21);
-        uint256 oneWeek = 7 * 24 * 3600;
-        uint256 oneYear = 1 * 365 * 24 * 3600;
-        vm.expectRevert(abi.encodePacked('Voting lock can be 1 years max'));
-        escrow.create_lock(1e21, oneYear + oneWeek);
+        uint256 oneWeek = 1 * 24 * 3600;
+        uint256 fourYears = 1 * 365 * 24 * 3600;
+        vm.expectRevert(abi.encodePacked('Voting lock can be 4 years max'));
+        escrow.create_lock(1e21, fourYears + oneWeek);
     }
 
     function testWithdraw() public {
         VIRI.approve(address(escrow), 1e21);
-        uint256 lockDuration = 7 * 24 * 3600; // 1 week
+        uint256 lockDuration = 1 * 24 * 3600; // 1 day
         escrow.create_lock(1e21, lockDuration);
 
         // Try withdraw early
@@ -65,7 +62,7 @@ contract VotingEscrowTest is BaseTest {
         vm.expectRevert(abi.encodePacked("Query for nonexistent token"));
         escrow.tokenURI(999);
         VIRI.approve(address(escrow), 1e21);
-        uint256 lockDuration = 7 * 24 * 3600; // 1 week
+        uint256 lockDuration = 1 * 24 * 3600; // 1 day
         escrow.create_lock(1e21, lockDuration);
 
         uint256 tokenId = 1;

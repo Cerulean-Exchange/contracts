@@ -29,9 +29,9 @@ async function main() {
     console.log('EquilibreTvlOracle', oracle.address);
 
     const veApi = await Equilibre_VE_Api.deploy(oracle.address, cfg.VIRI_CORE,
-        contracts.Vara, contracts.Voter, contracts.VotingEscrow);
+        contracts.Viri, contracts.Voter, contracts.VotingEscrow);
     const veApiVerifyArgs = [oracle.address, cfg.VIRI_CORE,
-        contracts.Vara, contracts.Voter, contracts.VotingEscrow];
+        contracts.Viri, contracts.Voter, contracts.VotingEscrow];
     await veApi.deployed();
     console.log('Equilibre_VE_Api', veApi.address);
 
