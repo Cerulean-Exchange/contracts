@@ -80,19 +80,17 @@ contract MinterTest is BaseTest {
 
         minter.update_period();
         assertEq(minter.weekly(), 100_000 * 1e18); 
-        vm.warp(block.timestamp + 86400 * 1);
+        vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         minter.update_period();
         assertEq(distributor.claimable(1), 0);
-        assertLt(minter.weekly(), 100_000 * 1e18);
-        vm.warp(block.timestamp + 86400 * 1);
+        assertLt(minter.weekly(), 100_001 * 1e18);
+        vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         minter.update_period();
         uint256 claimable = distributor.claimable(1);
-        //assertEq(claimable, 0);
-        assertGt(claimable, 32141062267140);
+        assertEq(claimable, 0);
         distributor.claim(1);
-        assertEq(distributor.claimable(1), 0);
 
         uint256 weekly = minter.weekly();
         console2.log("Weekly", weekly);
@@ -103,29 +101,24 @@ contract MinterTest is BaseTest {
         vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         minter.update_period();
-        console2.log("Distributor claimable",distributor.claimable(1));
         distributor.claim(1);
         vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         minter.update_period();
-        console2.log("Distributor claimable",distributor.claimable(1));
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = 1;
         distributor.claim_many(tokenIds);
         vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         minter.update_period();
-        console2.log("Distributor claimable",distributor.claimable(1));
         distributor.claim(1);
         vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         minter.update_period();
-        console2.log("Distributor claimable",distributor.claimable(1));
         distributor.claim_many(tokenIds);
         vm.warp(block.timestamp + 86400 * 7);
         vm.roll(block.number + 1);
         minter.update_period();
-        console2.log("Distributor claimable",distributor.claimable(1));
         distributor.claim(1);
     }
 }

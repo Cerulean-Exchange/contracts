@@ -9,7 +9,7 @@ contract PairFeesTest is BaseTest {
         deployCoins();
         mintStables();
         deployPairFactoryAndRouter();
-        factory.setFee(true, 2); // 2 bps = 0.02%
+        factory.setFee(true, 3); // 3 bps = 0.03%
         deployPairWithOwner(address(owner));
         mintPairFraxUsdcWithOwner(address(owner));
     }
@@ -35,7 +35,7 @@ contract PairFeesTest is BaseTest {
         vm.warp(block.timestamp + 1801);
         vm.roll(block.number + 1);
         address fees = pair.fees();
-        assertEq(USDC.balanceOf(fees), 200); // 0.01% -> 0.02%
+        assertEq(USDC.balanceOf(fees), 300); // 0.03%
         uint256 b = USDC.balanceOf(address(owner));
         pair.claimFees();
         assertGt(USDC.balanceOf(address(owner)), b);
@@ -64,7 +64,7 @@ contract PairFeesTest is BaseTest {
 
     function testNonFeeManagerCannotChangeFees() public {
         vm.expectRevert(abi.encodePacked("not fee manager"));
-        owner2.setFee(address(factory), true, 2);
+        owner2.setFee(address(factory), true, 3);
     }
 
     function testFeeManagerCannotSetFeeAboveMax() public {
