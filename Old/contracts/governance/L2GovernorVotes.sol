@@ -3,7 +3,6 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
 import {L2Governor} from "contracts/governance/L2Governor.sol";
 
@@ -14,16 +13,13 @@ import {L2Governor} from "contracts/governance/L2Governor.sol";
  *
  * _Available since v4.3._
  */
-abstract contract L2GovernorVotes is Initializable, L2Governor {
-    IVotes public token;
+abstract contract L2GovernorVotes is L2Governor {
+    IVotes public immutable token;
 
-    function __L2GovernorVotes_init(IVotes tokenAddress) internal onlyInitializing {
-        __L2GovernorVotes_init_unchained(tokenAddress);
-    }
-
-    function __L2GovernorVotes_init_unchained(IVotes tokenAddress) internal onlyInitializing {
+    constructor(IVotes tokenAddress) {
         token = tokenAddress;
     }
+
     /**
      * Read the voting weight from the token's built in snapshot mechanism (see {Governor-_getVotes}).
      */

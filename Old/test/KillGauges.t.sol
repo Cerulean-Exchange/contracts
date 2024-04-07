@@ -1,6 +1,6 @@
 pragma solidity 0.8.13;
 
-import "./BaseTest.sol";
+import "../test/BaseTest.sol";
 
 contract KillGaugesTest is BaseTest {
   VotingEscrow escrow;
@@ -17,7 +17,6 @@ contract KillGaugesTest is BaseTest {
   InternalBribe bribe2;
 
   function setUp() public {
-    deployProxyAdmin();
     deployOwners();
     deployCoins();
     mintStables();
@@ -27,9 +26,7 @@ contract KillGaugesTest is BaseTest {
     amounts[2] = 1e25;
     mintViri(owners, amounts);
     VeArtProxy artProxy = new VeArtProxy();
-    VotingEscrow implEscrow = new VotingEscrow();
-    proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VIRI), address(artProxy)));
-    escrow = VotingEscrow(address(proxy));
+    escrow = new VotingEscrow(address(VIRI), address(artProxy));
 
     VIRI.approve(address(escrow), 100 * TOKEN_1);
     escrow.create_lock(100 * TOKEN_1, 1 * 365 * 86400);
@@ -39,31 +36,20 @@ contract KillGaugesTest is BaseTest {
 
     deployPairWithOwner(address(owner));
 
-    Gauge implGauge = new Gauge();
-    GaugeFactory implGaugeFactory = new GaugeFactory();
-    proxy = new TransparentUpgradeableProxy(address(implGaugeFactory), address(admin), abi.encodeWithSelector(GaugeFactory.initialize.selector, address(implGauge)));
-    gaugeFactory = GaugeFactory(address(proxy));
-
-    InternalBribe implInternalBribe = new InternalBribe();
-    ExternalBribe implExternalBribe = new ExternalBribe();
-    BribeFactory implBribeFactory = new BribeFactory();
-    proxy = new TransparentUpgradeableProxy(address(implBribeFactory), address(admin), abi.encodeWithSelector(BribeFactory.initialize.selector, address(implInternalBribe), address(implExternalBribe)));
-    bribeFactory = BribeFactory(address(proxy));
-
-    Voter implVoter = new Voter();
-    proxy = new TransparentUpgradeableProxy(address(implVoter), address(admin), abi.encodeWithSelector(Voter.initialize.selector, address(escrow), address(factory), address(gaugeFactory), address(bribeFactory)));
-    voter = Voter(address(proxy));
+    gaugeFactory = new GaugeFactory();
+    bribeFactory = new BribeFactory();
+    voter = new Voter(
+      address(escrow),
+      address(factory),
+      address(gaugeFactory),
+      address(bribeFactory)
+    );
 
     escrow.setVoter(address(voter));
 
-    RewardsDistributor implDistributor = new RewardsDistributor();
-    proxy = new TransparentUpgradeableProxy(address(implDistributor), address(admin), abi.encodeWithSelector(RewardsDistributor.initialize.selector, address(escrow)));
-    distributor = RewardsDistributor(address(proxy));
+    distributor = new RewardsDistributor(address(escrow));
 
-    Minter implMinter = new Minter();
-    proxy = new TransparentUpgradeableProxy(address(implMinter), address(admin), abi.encodeWithSelector(Minter.initialize.selector, address(voter), address(escrow), address(distributor)));
-    minter = Minter(address(proxy));
-
+    minter = new Minter(address(voter), address(escrow), address(distributor));
     distributor.setDepositor(address(minter));
     VIRI.setMinter(address(minter));
     address[] memory tokens = new address[](4);
@@ -71,7 +57,7 @@ contract KillGaugesTest is BaseTest {
     tokens[1] = address(FRAX);
     tokens[2] = address(DAI);
     tokens[3] = address(VIRI);
-    voter.init(tokens, address(minter));
+    voter.initialize(tokens, address(minter));
 
     VIRI.approve(address(gaugeFactory), 15 * TOKEN_100K);
     voter.createGauge(address(pair));

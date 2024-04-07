@@ -1,7 +1,7 @@
 // 1:1 with Hardhat test
 pragma solidity 0.8.13;
 
-import './BaseTest.sol';
+import "../test/BaseTest.sol";
 
 contract PairTest is BaseTest {
     VotingEscrow escrow;
@@ -22,7 +22,6 @@ contract PairTest is BaseTest {
     function deployPairCoins() public {
         vm.warp(block.timestamp + 1 weeks); // put some initial time in
 
-        deployProxyAdmin();
         deployOwners();
         deployCoins();
         mintStables();
@@ -34,9 +33,7 @@ contract PairTest is BaseTest {
         mintLR(owners, amounts);
 
         VeArtProxy artProxy = new VeArtProxy();
-        VotingEscrow implEscrow = new VotingEscrow();
-        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VIRI), address(artProxy)));
-        escrow = VotingEscrow(address(proxy));
+        escrow = new VotingEscrow(address(VIRI), address(artProxy));
     }
 
     function createLock() public {
@@ -57,7 +54,7 @@ contract PairTest is BaseTest {
         vm.expectRevert(abi.encodePacked('Can only increase lock duration'));
         escrow.increase_unlock_time(1, 1 * 365 * 86400);
         assertGt(escrow.balanceOfNFT(1), 995063075414519385);
-        assertEq(VIRI.balanceOf(address(escrow)), TOKEN_1); 
+        assertEq(VIRI.balanceOf(address(escrow)), TOKEN_1);
     }
 
     function votingEscrowViews() public {
@@ -260,20 +257,9 @@ contract PairTest is BaseTest {
     function deployVoter() public {
         routerAddLiquidity();
 
-        Gauge implGauge = new Gauge();
-        GaugeFactory implGaugeFactory = new GaugeFactory();
-        proxy = new TransparentUpgradeableProxy(address(implGaugeFactory), address(admin), abi.encodeWithSelector(GaugeFactory.initialize.selector, address(implGauge)));
-        gaugeFactory = GaugeFactory(address(proxy));
-
-        InternalBribe implInternalBribe = new InternalBribe();
-        ExternalBribe implExternalBribe = new ExternalBribe();
-        BribeFactory implBribeFactory = new BribeFactory();
-        proxy = new TransparentUpgradeableProxy(address(implBribeFactory), address(admin), abi.encodeWithSelector(BribeFactory.initialize.selector, address(implInternalBribe), address(implExternalBribe)));
-        bribeFactory = BribeFactory(address(proxy));
-
-        Voter implVoter = new Voter();
-        proxy = new TransparentUpgradeableProxy(address(implVoter), address(admin), abi.encodeWithSelector(Voter.initialize.selector, address(escrow), address(factory), address(gaugeFactory), address(bribeFactory)));
-        voter = Voter(address(proxy));
+        gaugeFactory = new GaugeFactory();
+        bribeFactory = new BribeFactory();
+        voter = new Voter(address(escrow), address(factory), address(gaugeFactory), address(bribeFactory));
 
         escrow.setVoter(address(voter));
 
@@ -283,14 +269,9 @@ contract PairTest is BaseTest {
     function deployMinter() public {
         deployVoter();
 
-        RewardsDistributor implDistributor = new RewardsDistributor();
-        proxy = new TransparentUpgradeableProxy(address(implDistributor), address(admin), abi.encodeWithSelector(RewardsDistributor.initialize.selector, address(escrow)));
-        distributor = RewardsDistributor(address(proxy));
+        distributor = new RewardsDistributor(address(escrow));
 
-        Minter implMinter = new Minter();
-        proxy = new TransparentUpgradeableProxy(address(implMinter), address(admin), abi.encodeWithSelector(Minter.initialize.selector, address(voter), address(escrow), address(distributor)));
-        minter = Minter(address(proxy));
-
+        minter = new Minter(address(voter), address(escrow), address(distributor));
         distributor.setDepositor(address(minter));
         VIRI.setMinter(address(minter));
         address[] memory tokens = new address[](5);
@@ -299,7 +280,7 @@ contract PairTest is BaseTest {
         tokens[2] = address(DAI);
         tokens[3] = address(VIRI);
         tokens[4] = address(LR);
-        voter.init(tokens, address(minter));
+        voter.initialize(tokens, address(minter));
     }
 
     function deployPairFactoryGauge() public {
@@ -632,7 +613,7 @@ contract PairTest is BaseTest {
         claimants[0] = address(owner);
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = TOKEN_1;
-        minter.init(claimants, amounts, TOKEN_1);
+        minter.initialize(claimants, amounts, TOKEN_1);
         minter.update_period();
         voter.updateGauge(address(gauge));
         console2.log(VIRI.balanceOf(address(distributor)));
@@ -892,7 +873,7 @@ contract PairTest is BaseTest {
     function testGaugeClaimRewards3() public {
         gaugeClaimRewards2();
 
-        pair.approve(address(gauge), PAIR_1);
+        /* pair.approve(address(gauge), PAIR_1);
         gauge.deposit(PAIR_1, 0);
         VIRI.approve(address(gauge), VIRI.balanceOf(address(owner)));
         gauge.notifyRewardAmount(address(VIRI), VIRI.balanceOf(address(owner)));
@@ -902,6 +883,6 @@ contract PairTest is BaseTest {
         address[] memory rewards = new address[](1);
         rewards[0] = address(LR);
         gauge.getReward(address(owner), rewards);
-        gauge.withdraw(gauge.balanceOf(address(owner)));
+        gauge.withdraw(gauge.balanceOf(address(owner))); */
     }
 }

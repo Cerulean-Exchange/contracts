@@ -94,7 +94,7 @@ contract bViri is Initializable, OFTUpgradeable {
         asset.approve(address(ve), _amount);
 
         /// @dev conversion always lock for 1y:
-        uint _lock_duration = (((1 * 365 days) / 1 weeks) * 1 weeks) - 1;
+        uint _lock_duration = (((1 * 365 days) / 1 days) * 1 days) - 1;
         return ve.create_lock_for(_amount, _lock_duration, _msgSender());
     }
 
@@ -147,7 +147,7 @@ contract bViri is Initializable, OFTUpgradeable {
 
         /// @dev let's compute time left for 1y:
         uint _lock_duration = 1 * 365 days;
-        uint unlock_time = ((block.timestamp + _lock_duration) / 1 weeks) * 1 weeks; // Locktime is rounded down to weeks
+        uint unlock_time = ((block.timestamp + _lock_duration) / 1 days) * 1 days; // Locktime is rounded down to days
         /// @dev check if we need to push the unlock time:
         if (unlock_time > ve.locked__end(_tokenId)) ve.increase_unlock_time(_tokenId, _lock_duration);
 

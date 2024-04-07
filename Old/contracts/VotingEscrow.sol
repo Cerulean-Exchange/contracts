@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
-import {IERC721Upgradeable, IERC721MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721MetadataUpgradeable.sol";
-import {IVotesUpgradeable} from '@openzeppelin/contracts-upgradeable/governance/utils/IVotesUpgradeable.sol';
-import {IERC721ReceiverUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
+import {IERC721, IERC721Metadata} from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
+import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import {IERC20} from "contracts/interfaces/IERC20.sol";
 import {IVeArtProxy} from "contracts/interfaces/IVeArtProxy.sol";
 import {IVotingEscrow} from "contracts/interfaces/IVotingEscrow.sol";
@@ -15,8 +14,8 @@ import {IVotingEscrow} from "contracts/interfaces/IVotingEscrow.sol";
 /// @author Modified from Solidly (https://github.com/solidlyexchange/solidly/blob/master/contracts/ve.sol)
 /// @author Modified from Curve (https://github.com/curvefi/curve-dao-contracts/blob/master/contracts/VotingEscrow.vy)
 /// @author Modified from Nouns DAO (https://github.com/withtally/my-nft-dao-project/blob/main/contracts/ERC721Checkpointable.sol)
-/// @dev Vote weight decays linearly over time. Lock time cannot be more than `MAXTIME` (1 years).
-contract VotingEscrow is Initializable, IERC721Upgradeable, IERC721MetadataUpgradeable, IVotesUpgradeable {
+/// @dev Vote weight decays linearly over time. Lock time cannot be more than `MAXTIME` (1 year).
+contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
     enum DepositType {
         DEPOSIT_FOR_TYPE,
         CREATE_LOCK_TYPE,
@@ -65,7 +64,7 @@ contract VotingEscrow is Initializable, IERC721Upgradeable, IERC721MetadataUpgra
                                CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-    address public token;
+    address public immutable token;
     address public voter;
     address public team;
     address public artProxy;
@@ -87,15 +86,9 @@ contract VotingEscrow is Initializable, IERC721Upgradeable, IERC721MetadataUpgra
     /// @dev Current count of token
     uint internal tokenId;
 
-    uint8 internal _entered_state;
     /// @notice Contract constructor
-    /// @param token_addr `Viri` token address
-    function initialize(
-        address token_addr, 
-        address art_proxy
-    ) external initializer {
-        _entered_state = 1;
-        
+    /// @param token_addr `VIRI` token address
+    constructor(address token_addr, address art_proxy) {
         token = token_addr;
         voter = msg.sender;
         team = msg.sender;
@@ -121,6 +114,7 @@ contract VotingEscrow is Initializable, IERC721Upgradeable, IERC721MetadataUpgra
     /// @dev reentrancy guard
     uint8 internal constant _not_entered = 1;
     uint8 internal constant _entered = 2;
+    uint8 internal _entered_state = 1;
     modifier nonreentrant() {
         require(_entered_state == _not_entered);
         _entered_state = _entered;
@@ -379,8 +373,8 @@ contract VotingEscrow is Initializable, IERC721Upgradeable, IERC721MetadataUpgra
 
         if (_isContract(_to)) {
             // Throws if transfer destination is a contract which does not implement 'onERC721Received'
-            try IERC721ReceiverUpgradeable(_to).onERC721Received(msg.sender, _from, _tokenId, _data) returns (bytes4 response) {
-                if (response != IERC721ReceiverUpgradeable(_to).onERC721Received.selector) {
+            try IERC721Receiver(_to).onERC721Received(msg.sender, _from, _tokenId, _data) returns (bytes4 response) {
+                if (response != IERC721Receiver(_to).onERC721Received.selector) {
                     revert("ERC721: ERC721Receiver rejected tokens");
                 }
             } catch (bytes memory reason) {
@@ -528,7 +522,7 @@ contract VotingEscrow is Initializable, IERC721Upgradeable, IERC721MetadataUpgra
     mapping(uint => int128) public slope_changes; // time -> signed slope change
     uint public supply;
 
-    uint internal constant WEEK = 1 weeks;
+    uint internal constant WEEK = 7 days;
     uint internal constant MAXTIME = 1 * 365 * 86400;
     int128 internal constant iMAXTIME = 1 * 365 * 86400;
     uint internal constant MULTIPLIER = 1 ether;
@@ -774,7 +768,7 @@ contract VotingEscrow is Initializable, IERC721Upgradeable, IERC721MetadataUpgra
 
         require(_value > 0); // dev: need non-zero value
         require(unlock_time > block.timestamp, 'Can only lock until time in the future');
-        require(unlock_time <= block.timestamp + MAXTIME, 'Voting lock can be 1 years max');
+        require(unlock_time <= block.timestamp + MAXTIME, 'Voting lock can be 1 year max');
 
         ++tokenId;
         uint _tokenId = tokenId;
@@ -824,7 +818,7 @@ contract VotingEscrow is Initializable, IERC721Upgradeable, IERC721MetadataUpgra
         require(_locked.end > block.timestamp, 'Lock expired');
         require(_locked.amount > 0, 'Nothing is locked');
         require(unlock_time > _locked.end, 'Can only increase lock duration');
-        require(unlock_time <= block.timestamp + MAXTIME, 'Voting lock can be 1 years max');
+        require(unlock_time <= block.timestamp + MAXTIME, 'Voting lock can be 1 year max');
 
         _deposit_for(_tokenId, 0, unlock_time, _locked, DepositType.INCREASE_UNLOCK_TIME);
     }

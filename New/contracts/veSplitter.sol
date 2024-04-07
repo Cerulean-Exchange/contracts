@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import {VotingEscrow} from "contracts/VotingEscrow.sol";
 import {Voter} from "contracts/Voter.sol";
 import {IERC20} from "./interfaces/IERC20.sol";
 
-contract veSplitter is Initializable{
+contract veSplitter {
 
     VotingEscrow public escrow;
     Voter public voter;
@@ -24,7 +23,7 @@ contract veSplitter is Initializable{
     error InvalidWithdrawAmount(uint expected, uint available);
     error NftLocked();
 
-    function initialize(address _voter) external initializer{
+    constructor(address _voter){
         voter = Voter(_voter);
         escrow = VotingEscrow(voter._ve());
         token = IERC20(escrow.token());

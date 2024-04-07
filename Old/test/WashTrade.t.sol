@@ -1,7 +1,7 @@
 // 1:1 with Hardhat test
 pragma solidity 0.8.13;
 
-import './BaseTest.sol';
+import "../test/BaseTest.sol";
 
 contract WashTradeTest is BaseTest {
     VotingEscrow escrow;
@@ -15,7 +15,6 @@ contract WashTradeTest is BaseTest {
     function deployBaseCoins() public {
         vm.warp(block.timestamp + 1 weeks); // put some initial time in
 
-        deployProxyAdmin();
         deployOwners();
         deployCoins();
         mintStables();
@@ -24,9 +23,7 @@ contract WashTradeTest is BaseTest {
         mintViri(owners, amounts);
 
         VeArtProxy artProxy = new VeArtProxy();
-        VotingEscrow implEscrow = new VotingEscrow();
-        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(VIRI), address(artProxy)));
-        escrow = VotingEscrow(address(proxy));
+        escrow = new VotingEscrow(address(VIRI), address(artProxy));
     }
 
     function createLock() public {
@@ -88,27 +85,15 @@ contract WashTradeTest is BaseTest {
     function deployVoter() public {
         routerAddLiquidity();
 
-        Gauge implGauge = new Gauge();
-        GaugeFactory implGaugeFactory = new GaugeFactory();
-        proxy = new TransparentUpgradeableProxy(address(implGaugeFactory), address(admin), abi.encodeWithSelector(GaugeFactory.initialize.selector, address(implGauge)));
-        gaugeFactory = GaugeFactory(address(proxy));
-
-        InternalBribe implInternalBribe = new InternalBribe();
-        ExternalBribe implExternalBribe = new ExternalBribe();
-        BribeFactory implBribeFactory = new BribeFactory();
-        proxy = new TransparentUpgradeableProxy(address(implBribeFactory), address(admin), abi.encodeWithSelector(BribeFactory.initialize.selector, address(implInternalBribe), address(implExternalBribe)));
-        bribeFactory = BribeFactory(address(proxy));
-
-        Voter implVoter = new Voter();
-        proxy = new TransparentUpgradeableProxy(address(implVoter), address(admin), abi.encodeWithSelector(Voter.initialize.selector, address(escrow), address(factory), address(gaugeFactory), address(bribeFactory)));
-        voter = Voter(address(proxy));
-
+        gaugeFactory = new GaugeFactory();
+        bribeFactory = new BribeFactory();
+        voter = new Voter(address(escrow), address(factory), address(gaugeFactory), address(bribeFactory));
         address[] memory tokens = new address[](4);
         tokens[0] = address(USDC);
         tokens[1] = address(FRAX);
         tokens[2] = address(DAI);
         tokens[3] = address(VIRI);
-        voter.init(tokens, address(owner));
+        voter.initialize(tokens, address(owner));
 
         assertEq(voter.length(), 0);
     }

@@ -3,11 +3,10 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/draft-EIP712Upgradeable.sol";
+import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import "@openzeppelin/contracts/utils/structs/DoubleEndedQueue.sol";
@@ -15,6 +14,7 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/Timers.sol";
 import "@openzeppelin/contracts/governance/IGovernor.sol";
+
 /**
  * @author Modified from RollCall (https://github.com/withtally/rollcall/blob/main/src/standards/L2Governor.sol)
  *
@@ -28,7 +28,7 @@ import "@openzeppelin/contracts/governance/IGovernor.sol";
  *
  * _Available since v4.3._
  */
-abstract contract L2Governor is Initializable, Context, ERC165, EIP712Upgradeable, IGovernor, IERC721Receiver, IERC1155Receiver {
+abstract contract L2Governor is Context, ERC165, EIP712, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
     using SafeCast for uint256;
     using Timers for Timers.Timestamp;
@@ -42,12 +42,12 @@ abstract contract L2Governor is Initializable, Context, ERC165, EIP712Upgradeabl
         Timers.Timestamp voteEnd;
         bool executed;
         bool canceled;
+        address proposer;
     }
 
     string private _name;
 
     mapping(uint256 => ProposalCore) private _proposals;
-    mapping(uint256 => address) private _proposerProposals;
 
     // This queue keeps track of the governor operating on itself. Calls to functions protected by the
     // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
@@ -78,12 +78,7 @@ abstract contract L2Governor is Initializable, Context, ERC165, EIP712Upgradeabl
     /**
      * @dev Sets the value for {name} and {version}
      */
-    function __L2Governor_init(string memory name_) internal onlyInitializing {
-        __EIP712_init_unchained(name_, version());
-        __L2Governor_init_unchained(name_);
-    }
-
-    function __L2Governor_init_unchained(string memory name_) internal onlyInitializing {
+    constructor(string memory name_) EIP712(name_, version()) {
         _name = name_;
     }
 
@@ -275,6 +270,7 @@ abstract contract L2Governor is Initializable, Context, ERC165, EIP712Upgradeabl
 
         proposal.voteStart.setDeadline(start);
         proposal.voteEnd.setDeadline(deadline);
+        proposal.proposer = _msgSender();
 
         emit ProposalCreated(
             proposalId,
@@ -287,7 +283,7 @@ abstract contract L2Governor is Initializable, Context, ERC165, EIP712Upgradeabl
             deadline,
             description
         );
-        _proposerProposals[proposalId] = _msgSender();
+
         return proposalId;
     }
 
@@ -602,13 +598,25 @@ abstract contract L2Governor is Initializable, Context, ERC165, EIP712Upgradeabl
         return this.onERC1155BatchReceived.selector;
     }
 
-    function CLOCK_MODE() public override view returns (string memory) {
-        return "mode=blocknumber&from=default";
+    function proposalProposer(uint256 proposalId) public view override returns (address){
+        return _proposals[proposalId].proposer;
     }
+
     function clock() public override view returns (uint48) {
-        return uint48(block.number);
+        return uint48(block.timestamp);
     }
-    function proposalProposer(uint256 proposalId) public view override returns (address) {
-        return _proposerProposals[proposalId];
+
+    function CLOCK_MODE() public override view returns (string memory) {
+        return "mode=timestamp";
+    }
+
+    function cancel(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public override returns (uint256 proposalId) {
+        require(false, "disabled");
+        proposalId;
     }
 }

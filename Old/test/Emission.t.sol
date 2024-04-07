@@ -3,8 +3,6 @@ pragma solidity 0.8.13;
 import "forge-std/Test.sol";
 import "forge-std/console2.sol";
 import "solmate/test/utils/mocks/MockERC20.sol";
-import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
-import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import "contracts/factories/BribeFactory.sol";
 import "contracts/factories/GaugeFactory.sol";
 import "contracts/factories/PairFactory.sol";
@@ -49,59 +47,20 @@ contract Emission is Test {
     Pair pool_eth_viri;
     address[] whitelist;
     Gauge gauge_eth_viri;
-    TransparentUpgradeableProxy proxy;
-    ProxyAdmin admin;
-
     function setUp() public {
-        admin = new ProxyAdmin();
-        
-        Viri implViri = new Viri();
-        proxy = new TransparentUpgradeableProxy(address(implViri), address(admin), abi.encodeWithSelector(Viri.initialize.selector));
-        viri = Viri(address(proxy));
-        
-        Gauge implGauge = new Gauge();
-        GaugeFactory implGaugeFactory = new GaugeFactory();
-        proxy = new TransparentUpgradeableProxy(address(implGaugeFactory), address(admin), abi.encodeWithSelector(GaugeFactory.initialize.selector, address(implGauge)));
-        gaugeFactory = GaugeFactory(address(proxy));
-
-        InternalBribe implInternalBribe = new InternalBribe();
-        ExternalBribe implExternalBribe = new ExternalBribe();
-        BribeFactory implBribeFactory = new BribeFactory();
-        proxy = new TransparentUpgradeableProxy(address(implBribeFactory), address(admin), abi.encodeWithSelector(BribeFactory.initialize.selector, address(implInternalBribe), address(implExternalBribe)));
-        bribeFactory = BribeFactory(address(proxy));
-
-        Pair implPair = new Pair();
-        PairFactory implPairFactory = new PairFactory();
-        proxy = new TransparentUpgradeableProxy(address(implPairFactory), address(admin), abi.encodeWithSelector(PairFactory.initialize.selector, address(implPair)));
-        pairFactory = PairFactory(address(proxy));
-
+        viri = new Viri();
+        gaugeFactory = new GaugeFactory();
+        bribeFactory = new BribeFactory();
+        pairFactory = new PairFactory();
         WETH = new TestWETH();
         DAI = new MockERC20("DAI", "DAI", 18);
-        Router2 implRouter = new Router2();
-        proxy = new TransparentUpgradeableProxy(address(implRouter), address(admin), abi.encodeWithSelector(Router.initialize.selector, address(pairFactory), address(WETH)));
-        router = Router2(payable(address(proxy)));
-
+        router = new Router2(address(pairFactory), address(WETH));
         artProxy = new VeArtProxy();
-
-        VotingEscrow implEscrow = new VotingEscrow();
-        proxy = new TransparentUpgradeableProxy(address(implEscrow), address(admin), abi.encodeWithSelector(VotingEscrow.initialize.selector, address(viri), address(artProxy)));
-        escrow = VotingEscrow(address(proxy));
-
-        RewardsDistributor implDistributor = new RewardsDistributor();
-        proxy = new TransparentUpgradeableProxy(address(implDistributor), address(admin), abi.encodeWithSelector(RewardsDistributor.initialize.selector, address(escrow)));
-        distributor = RewardsDistributor(address(proxy));
-
-        Voter implVoter = new Voter();
-        proxy = new TransparentUpgradeableProxy(address(implVoter), address(admin), abi.encodeWithSelector(Voter.initialize.selector, address(escrow), address(pairFactory), address(gaugeFactory), address(bribeFactory)));
-        voter = Voter(address(proxy));
-
-        Minter implMinter = new Minter();
-        proxy = new TransparentUpgradeableProxy(address(implMinter), address(admin), abi.encodeWithSelector(Minter.initialize.selector, address(voter), address(escrow), address(distributor)));
-        minter = Minter(address(proxy));
-
-        ViriGovernor implViriGovernor = new ViriGovernor();
-        proxy = new TransparentUpgradeableProxy(address(implViriGovernor), address(admin), abi.encodeWithSelector(ViriGovernor.initialize.selector, escrow));
-        governor = ViriGovernor(payable(address(proxy)));
+        escrow = new VotingEscrow(address(viri), address(artProxy));
+        distributor = new RewardsDistributor(address(escrow));
+        voter = new Voter(address(escrow), address(pairFactory), address(gaugeFactory), address(bribeFactory));
+        minter = new Minter(address(voter), address(escrow), address(distributor));
+        governor = new ViriGovernor(escrow);
         // ---
         viri.initialMint(address(this));
         viri.setMinter(address(minter));
@@ -115,8 +74,8 @@ contract Emission is Test {
 
         whitelist.push(address(viri));
         whitelist.push(address(DAI));
-        voter.init(whitelist, address(minter));
-        //minter.init([], [], 0);
+        voter.initialize(whitelist, address(minter));
+        //minter.initialize([], [], 0);
         minter.setTeam(address(this));
 
         // ---
@@ -140,7 +99,7 @@ contract Emission is Test {
 
         gauge_eth_viri = Gauge(voter.createGauge(address(pool_eth_viri)));
         vm.roll(block.number + 1);
-        uint duration = 1 * 365 * 86400; //1 year
+        uint duration = 1 * 365 * 86400;
         viri.approve(address(escrow), viri.balanceOf(address(this)));
         uint id = escrow.create_lock(viri.balanceOf(address(this)), duration);
 
@@ -162,7 +121,7 @@ contract Emission is Test {
         emptyAddresses[0] = address(this);
         uint[] memory emptyAmounts = new uint[](1);
         emptyAmounts[0] = 1e18;
-        minter.init(emptyAddresses, emptyAmounts, 1e18);
+        minter.initialize(emptyAddresses, emptyAmounts, 1e18);
         console.log('a', viri.balanceOf(address(this))/1e18);
         voter.distro();
         console.log('b', viri.balanceOf(address(this))/1e18);
