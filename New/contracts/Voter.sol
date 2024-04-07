@@ -20,7 +20,7 @@ contract Voter is IVoter {
     address internal immutable base;
     address public immutable gaugefactory;
     address public immutable bribefactory;
-    uint internal constant DURATION = 7 days; // rewards are released over 7 days
+    uint internal constant DURATION = 1 days; // rewards are released over 7 days
     address public minter;
     address public governor; // should be set to an IGovernor
     address public emergencyCouncil; // credibly neutral party similar to Curve's Emergency DAO
