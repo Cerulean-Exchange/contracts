@@ -4,12 +4,12 @@ const { ethers } = require("hardhat");
 
 describe("Deploy Test", function(){
    
-    let Viri, viriContract, owner, addr1, addr2,VeArt, veArtProxy, votingEscrow, votingEscrowContract, 
+    let externalBribeAddress,internalBribeAddress, Viri, viriContract, owner, addr1, addr2,VeArt, veArtProxy, votingEscrow, votingEscrowContract, 
     intBribeImp, intBribeImplContract, extBribeImp, extBribeImpContract, bribeFactory, bribeFactoryContract, 
     gaugeImpl, gaugeImplContract, gaugeFactory, gaugeFactoryContract, pairImpl, pairImplContract, pairFactoryContract, voterContract,
     WrappedExternalBribeFactoryContract, veSplitter,veSplitterContract, router, routerContract,
     router2Contract, viriLibraryContract, wrappedExternalBribe, wrappedExternalBribeContract, wrappedExternalBribe2,
-    rewardsDistriburorContract, minterContract, merkleClaimContract, veApi,veApiContract, gaugeContract, internalBribeContract, externalBribeContract;
+    rewardsDistriburorContract, minterContract, merkleClaimContract, veApi,veApiContract, gaugeContract, internalBribeContract, externalBribeContract, WrappedExternalBribeFactory;
 
     
     before(async ()=>{
@@ -34,91 +34,97 @@ describe("Deploy Test", function(){
         veArtProxy = await deployContract("VeArtProxy");
 
         //Deploy Voting Escrow
-        votingEscrowContract = await deployContract("VotingEscrow")
+        votingEscrow = await ethers.getContractFactory("VotingEscrow")
+        votingEscrowContract = await votingEscrow.deploy(viriContract.target, veArtProxy.target)
+        /* votingEscrowContract = await deployContract("VotingEscrow")
         await votingEscrowContract.initialize(viriContract.target, veArtProxy.target);
-        
+         */
         //Deploy InternalBribe and External Bribe implementations
-        intBribeImplContract = await deployContract("InternalBribe");
+        /* intBribeImp = await ethers.getContractFactory("InternalBribe")
+        extBribeImp = await ethers.getContractFactory("ExternalBribe") */
+        /* intBribeImplContract = await deployContract("InternalBribe");
         extBribeImplContract = await deployContract("ExternalBribe");
-
+ */
         //Deploy BribeFactory
-        bribeFactoryContract = await deployContract("BribeFactory")
-        await bribeFactoryContract.initialize(intBribeImplContract.target, extBribeImplContract.target);
-
+        bribeFactory = await ethers.getContractFactory("BribeFactory")
+        bribeFactoryContract = await bribeFactory.deploy();
+        /* internalBribeAddress = await bribeFactoryContract.createInternalBribe(contractAddresses);
+        externalBribeAddress = await bribeFactoryContract.createExternalBribe(contractAddresses);
+         */
         //Deploy Gauge Implementation
-        gaugeImplContract = await deployContract("Gauge");
+        //gaugeImplContract = await deployContract("Gauge");
 
         //Deploy Gauge Factory
         gaugeFactoryContract = await deployContract("GaugeFactory")
-        await gaugeFactoryContract.initialize(gaugeImplContract.target);
-
         //Deploy Pair Implementation
-        pairImplContract = await deployContract("Pair");
+        //pairImplContract = await deployContract("Pair");
 
         //Deploy Pair Factroy
         pairFactoryContract = await deployContract("PairFactory");
-        await pairFactoryContract.initialize(pairImplContract.target);
+        //await pairFactoryContract.initialize(pairImplContract.target);
 
         //Deploy Voter
-        voterContract = await deployContract("Voter");
-        await voterContract.initialize(votingEscrowContract.target, pairFactoryContract.target, gaugeFactoryContract.target, bribeFactoryContract.target); 
+        
+        voter= await ethers.getContractFactory("Voter");
+        voterContract = await voter.deploy(votingEscrowContract.target, pairFactoryContract.target, gaugeFactoryContract.target, bribeFactoryContract.target)
+        //await voterContract.initialize(votingEscrowContract.target, pairFactoryContract.target, gaugeFactoryContract.target, bribeFactoryContract.target); 
 
         //Deploy WrappedExternalBribeFactory
-        WrappedExternalBribeFactoryContract = await deployContract("WrappedExternalBribeFactory");
-        await WrappedExternalBribeFactoryContract.initialize(voterContract.target);
-
+        WrappedExternalBribeFactory = await ethers.getContractFactory("WrappedExternalBribeFactory");
+        WrappedExternalBribeFactoryContract = await WrappedExternalBribeFactory.deploy(voterContract.target);
+ 
         //Deploy InternalBribe/ExternalBribe
-        await intBribeImplContract.initialize(voterContract.target, contractAddresses);
+        /* await intBribeImplContract.initialize(voterContract.target, contractAddresses);
         await extBribeImplContract.initialize(voterContract.target, contractAddresses);
-        //console.log(contractAddresses);
+         *///console.log(contractAddresses);
         //Deploy veSplitter
-        veSplitter = await ethers.getContractFactory("veSplitter");
+        /* veSplitter = await ethers.getContractFactory("veSplitter");
         veSplitterContract = await veSplitter.deploy(voterContract.target);
-
+ */
         //Deploy Router
-        routerContract = await deployContract("Router")
+        /* routerContract = await deployContract("Router")
         await routerContract.initialize(pairFactoryContract.target, "0xeAB3aC417c4d6dF6b143346a46fEe1B847B50296")
-
+ */
         //Deploy Router2
-        router2Contract = await deployContract("Router2")
+        //router2Contract = await deployContract("Router2")
         
         //Deploy ViriLibrary
-        viriLibraryContract = await deployContract("ViriLibrary");
+        /* viriLibraryContract = await deployContract("ViriLibrary");
         await viriLibraryContract.initialize(routerContract.target);
-
+ */
        /*  wrappedExternalBribe2 = await deployContract("WrappedExternalBribe")
         console.log("Wrapped2: ", wrappedExternalBribe2) */
 
         //Deploy WrappedExternalBribe
-        wrappedExternalBribe = await ethers.getContractFactory("WrappedExternalBribeV2");
+        /* wrappedExternalBribe = await ethers.getContractFactory("WrappedExternalBribeV2");
         wrappedExternalBribeContract = await wrappedExternalBribe.deploy(voterContract.target);
-
+ */
         //Deploy RewardsDistributor
-        rewardsDistriburorContract = await deployContract("RewardsDistributor");
+        /* rewardsDistriburorContract = await deployContract("RewardsDistributor");
         await rewardsDistriburorContract.initialize(votingEscrowContract.target) 
-
+ */
         
         //Deploy veApi
-        veApi = await ethers.getContractFactory("VE_Api_V2");
+        /* veApi = await ethers.getContractFactory("VE_Api_V2");
         veApiContract = await veApi.deploy("0x3d6c56f6855b7Cc746fb80848755B0a9c3770122", viriContract.target, voterContract.target, votingEscrowContract.target);
-
+ */
         //Deploy Minter
-        minterContract = await deployContract("Minter");
+        /* minterContract = await deployContract("Minter");
         await minterContract.initialize(voterContract.target, votingEscrowContract.target, rewardsDistriburorContract.target)
-
+ */
 
         //Internal and External Bribe deploy
-        internalBribeContract = await deployContract("InternalBribe")
+        /* internalBribeContract = await deployContract("InternalBribe")
         await internalBribeContract.initialize(voterContract.target, contractAddresses)
-        
-        externalBribeContract = await deployContract("ExternalBribe")
+         */
+        /* externalBribeContract = await deployContract("ExternalBribe")
         await externalBribeContract.initialize(voterContract.target, contractAddresses)
-
+ */
 
         //Deploy Gauge
-        gaugeContract = await deployContract("Gauge");
+        /* gaugeContract = await deployContract("Gauge");
         await gaugeContract.initialize("0x3d6c56f6855b7Cc746fb80848755B0a9c3770122", internalBribeContract.target, externalBribeContract.target, votingEscrowContract.target, voterContract.target, true, contractAddresses)
-
+ */
 
         });
 
@@ -126,42 +132,43 @@ describe("Deploy Test", function(){
 
         
 
-        it.skip("01 Test Deploy Viri", async function () {
+        it("01 Test Deploy Viri", async function () {
         console.log("Viri contract: ", viriContract.target);
         console.log("Variable name:", await viriContract.name())
         console.log("Variable symbol:", await viriContract.symbol())
         });
 
-        it.skip("02 Test Deploy veArt", async function () {
+        it("02 Test Deploy veArt", async function () {
         console.log("veArt address: ", veArtProxy.target);
         });
 
-        it.skip("03 Test Deploy voting Escrow", async function () {
+        it("03 Test Deploy voting Escrow", async function () {
         console.log("VotingEscrow address: ", votingEscrowContract.target);
         });
 
-        it.skip("04 Test Deploy bribeFactory", async function () {
-        console.log("internal bribe: ", intBribeImplContract.target);
-        console.log("external bribe: ", extBribeImplContract.target);
-        console.log("bribe factory address: ", bribeFactoryContract.target)
+        it("04 Test Deploy bribeFactory", async function () {
+        /*  console.log("internal bribe implementation: ", internalBribeAddress);
+            console.log("external bribe implementation: ", externalBribeAddress);
+         */
+        console.log("bribe factory address: ", bribeFactoryContract.target)    
         });
 
-        it.skip("05 Test Deploy Gauge Factory", async function () {
-        console.log("gauge implementation: ", gaugeImplContract.target);
+        it("05 Test Deploy Gauge Factory", async function () {
+       //console.log("gauge implementation: ", gaugeImplContract.target);
         console.log("gauge factory: ", gaugeFactoryContract.target)
         });
 
-        it.skip("06 Test Deploy Pair Factory", async function () {
-            console.log("Pair implementation: ", pairImplContract.target);
+        it("06 Test Deploy Pair Factory", async function () {
+            //console.log("Pair implementation: ", pairImplContract.target);
             console.log("pair factory: ", pairFactoryContract.target)
         });
 
-        it.skip("07 Test Deploy Voter", async function () {
+        it("07 Test Deploy Voter", async function () {
             
             console.log("Voter contract: ", voterContract.target)
         });
 
-        it.skip("08 Test Deploy WrappedExternalBribeFactory", async function () {
+        it("08 Test Deploy WrappedExternalBribeFactory", async function () {
             
             console.log("WrappedExternalBribeFactory: ", WrappedExternalBribeFactoryContract.target)
         });
@@ -185,7 +192,7 @@ describe("Deploy Test", function(){
             console.log("Wrapped External Bribe: ", wrappedExternalBribeContract.target);
         });
 
-        it("12 Test Deploy Minter", async function () {
+        it.skip("12 Test Deploy Minter", async function () {
             console.log("Internal Bribe contract: ", internalBribeContract.target)
             console.log("External Bribe contract: ", externalBribeContract.target)
             console.log("Minter: ", minterContract.target)
