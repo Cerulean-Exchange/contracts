@@ -46,6 +46,7 @@ fs.writeFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), '');
     try {
         //Deploy Voting Escrow
         votingEscrow = await ethers.getContractFactory("VotingEscrow")
+        //recibe address de VIRI y address de VeArtProxy
         votingEscrowContract = await votingEscrow.deploy(viriContract.target, veArtProxy.target)
         fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `votingEscrowContract: ${votingEscrowContract.target}\n`);
             
@@ -83,6 +84,7 @@ fs.writeFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), '');
     try {
         //Deploy Voter
         voter= await ethers.getContractFactory("Voter");
+        //Recibe address de los siguientes contrato VE, pairFactory, gaugeFactory y bribeFactory
         voterContract = await voter.deploy(votingEscrowContract.target, pairFactoryContract.target, gaugeFactoryContract.target, bribeFactoryContract.target)
         fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `voterContract: ${voterContract.target}\n`);
         //await voterContract.initialize(votingEscrowContract.target, pairFactoryContract.target, gaugeFactoryContract.target, bribeFactoryContract.target); 
@@ -94,6 +96,7 @@ fs.writeFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), '');
     try {
         //Deploy WrappedExternalBribeFactory
         WrappedExternalBribeFactory = await ethers.getContractFactory("WrappedExternalBribeFactory");
+        //Recibe address del contrato Voter
         WrappedExternalBribeFactoryContract = await WrappedExternalBribeFactory.deploy(voterContract.target);
         fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `WrappedExternalBribeFactoryContract: ${WrappedExternalBribeFactoryContract.target}\n`);
     } catch (error) {
@@ -103,6 +106,7 @@ fs.writeFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), '');
     try {
         //Deploy veSplitter
         veSplitter = await ethers.getContractFactory("veSplitter");
+        //recibe address del contrato voter
         veSplitterContract = await veSplitter.deploy(voterContract.target);
         fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `veSplitterContract: ${veSplitterContract.target}\n`);
     
@@ -123,6 +127,7 @@ fs.writeFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), '');
     try {
         //Deploy Router
         router = await ethers.getContractFactory("Router")
+        //Recibe address de pairFactory y la direccion de WTCORE
         routerContract = await router.deploy(pairFactoryContract.target, WTCOREContract.target)
         fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `routerContract: ${routerContract.target}\n`);
     } catch (error) {
@@ -132,6 +137,7 @@ fs.writeFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), '');
     try {
         //Deploy Router2
         router2 = await ethers.getContractFactory("Router")
+        //Recibe address de pairFactory y la direccion de WTCORE
         router2Contract = await router2.deploy(pairFactoryContract.target, WTCOREContract.target)
         fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `router2Contract: ${router2Contract.target}\n`);
             
@@ -142,6 +148,7 @@ fs.writeFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), '');
     try {
         //Deploy ViriLibrary
         viriLibrary = await ethers.getContractFactory("ViriLibrary");
+        //Recibe address del contrato Router
         viriLibraryContract =await viriLibrary.deploy(routerContract.target);
         fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `viriLibraryContract: ${viriLibraryContract.target}\n`);
     
@@ -152,10 +159,12 @@ fs.writeFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), '');
     try {
         //Deploy WrappedExternalBribe2
         wrappedExternalBribe2 = await ethers.getContractFactory("WrappedExternalBribeV2")
+        //Recibe address del contrato Voter
         wrappedExternalBribe2Contract = await wrappedExternalBribe2.deploy(voterContract.target)
         fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `wrappedExternalBribe2Contract: ${wrappedExternalBribe2Contract.target}\n`);
         //Deploy WrappedExternalBribe
         wrappedExternalBribe = await ethers.getContractFactory("WrappedExternalBribe");
+        //Recibe address del contrato Voter y del anterior WEB
         wrappedExternalBribeContract = await wrappedExternalBribe.deploy(voterContract.target, wrappedExternalBribe2Contract.target);
         fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `wrappedExternalBribeContract: ${wrappedExternalBribeContract.target}\n`);
     } catch (error) {
@@ -165,6 +174,7 @@ fs.writeFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), '');
     try {
         //Deploy RewardsDistributor
         rewardsDistriburor = await ethers.getContractFactory("RewardsDistributor");
+        //Recibe address de votingEscrow
         rewardsDistriburorContract = await rewardsDistriburor.deploy(votingEscrowContract.target)
         fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `rewardsDistributorContract: ${rewardsDistriburorContract.target}\n`); 
             
@@ -175,6 +185,7 @@ fs.writeFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), '');
     try {
         //Deploy Minter
         minter = await ethers.getContractFactory("Minter");
+        //Recibe address de voter, votingEscrow y rewardsDistributor
         minterContract = minter.deploy(voterContract.target, votingEscrowContract.target, rewardsDistriburorContract.target)
         fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `minterContract: ${minterContract.target}\n`);
     } catch (error) {
@@ -194,7 +205,8 @@ fs.writeFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), '');
     try {
         //Deploy claimAll
         claimAllContract = await deployContract("ClaimAllImplementation")
-        await claimAllContract.initialize(votingEscrowContract.target, voterContract.target, pairFactoryContract.target, rewardsDistriburorContract)
+        //Recibe address de votingEscrow, voter, pairFactory y rewardDistributor
+        await claimAllContract.initialize(votingEscrowContract.target, voterContract.target, pairFactoryContract.target, rewardsDistriburorContract.target)
         fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `claimAllContract: ${claimAllContract.target}\n`);
     } catch (error) {
         console.log("Error al desplegar claimall", error);
@@ -214,6 +226,7 @@ fs.writeFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), '');
         const oracleArgs = [USDCContract, /* reemplazar con WETH de core */];
         //Deploy viriOracle
         viriOracle = await ethers.getContractFactory("ViriTvlOracle");
+        //Recibe un arreglo de direcciones y un entero
         viriOracleContract = await viriOracle.deploy(oracleArgs,6)
         fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `viriOracleContract: ${viriOracleContract.target}\n`);
     } catch (error) {
