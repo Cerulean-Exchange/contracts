@@ -14,7 +14,7 @@ let router2,WTCore,WTCOREContract,externalBribeAddress,internalBribeAddress, Vir
     WrappedExternalBribeFactoryContract, veSplitter,veSplitterContract, router, routerContract,
     router2Contract, viriLibraryContract, wrappedExternalBribe, wrappedExternalBribeContract, wrappedExternalBribe2, viriLibrary, wrappedExternalBribe2Contract,
     rewardsDistriburor,rewardsDistriburorContract, minterContract, merkleClaimContract, veApi,veApiContract, gaugeContract, internalBribeContract, externalBribeContract, WrappedExternalBribeFactory,
-    multicall, multicallContract, claimAll, claimAllContract, minter;
+    multicall, multicallContract, claimAll, claimAllContract, minter, USDC, USDCContract, viriOracle, viriOracleContract;
 
 //fs.appendFileSync(path.join(__dirname, 'deployed_contracts.txt'), `${contractName}: ${contract.address}\n`);
 async function main() {
@@ -184,8 +184,27 @@ async function main() {
     } catch (error) {
         console.log("Error al desplegar", error);
     }
+
+    try {
+        //Deploy USDC
+        USDC = await ethers.getContractFactory("USDC")
+        USDCContract = USDC.deploy();
+    } catch (error) {
+        console.log("Error al desplegar");
+    }
+
+    try {
+        const oracleArgs = [USDCContract, /* reemplazar con WETH de core */];
+        //Deploy viriOracle
+        viriOracle = await ethers.getContractFactory("ViriTvlOracle");
+        viriOracleContract = await viriOracle.deploy(oracleArgs,6)
+    } catch (error) {
+        
+        console.log("Error en el despliegue")
+    }
     
-    //Deploy viriOracle
+
+
     //Internal and External Bribe deploy
     /* internalBribeContract = await deployContract("InternalBribe")
     await internalBribeContract.initialize(voterContract.target, contractAddresses)
