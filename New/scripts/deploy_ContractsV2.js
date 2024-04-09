@@ -223,7 +223,8 @@ fs.writeFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), '');
 
     try {
         //preguntar si hace falta agregar la direccion de usdt en core
-        const oracleArgs = [USDCContract, /* reemplazar con WETH de core */];
+        const USDTContract= "0x3786495F5d8a83B7bacD78E2A0c61ca20722Cce3"
+        const oracleArgs = [USDCContract.target, WTCOREContract.target, USDTContract];
         //Deploy viriOracle
         viriOracle = await ethers.getContractFactory("ViriTvlOracle");
         //Recibe un arreglo de direcciones y un entero
