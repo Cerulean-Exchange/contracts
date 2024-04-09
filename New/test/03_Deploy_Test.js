@@ -9,7 +9,8 @@ describe("Deploy Test", function(){
     gaugeImpl, gaugeImplContract, gaugeFactory, gaugeFactoryContract, pairImpl, pairImplContract, pairFactoryContract, voterContract,
     WrappedExternalBribeFactoryContract, veSplitter,veSplitterContract, router, routerContract,
     router2Contract, viriLibraryContract, wrappedExternalBribe, wrappedExternalBribeContract, wrappedExternalBribe2, viriLibrary, wrappedExternalBribe2Contract,
-    rewardsDistriburorContract, minterContract, merkleClaimContract, veApi,veApiContract, gaugeContract, internalBribeContract, externalBribeContract, WrappedExternalBribeFactory;
+    rewardsDistriburor,rewardsDistriburorContract, minterContract, merkleClaimContract, veApi,veApiContract, gaugeContract, internalBribeContract, externalBribeContract, WrappedExternalBribeFactory,
+    multicall, multicallContract, claimAll, claimAllContract, minter;
 
     
     before(async ()=>{
@@ -109,19 +110,27 @@ describe("Deploy Test", function(){
         wrappedExternalBribeContract = await wrappedExternalBribe.deploy(voterContract.target, wrappedExternalBribe2Contract.target);
 
         //Deploy RewardsDistributor
-        /* rewardsDistriburorContract = await deployContract("RewardsDistributor");
-        await rewardsDistriburorContract.initialize(votingEscrowContract.target) 
- */
+        rewardsDistriburor = await ethers.getContractFactory("RewardsDistributor");
+        rewardsDistriburorContract = await rewardsDistriburor.deploy(votingEscrowContract.target) 
+
         
         //Deploy veApi
         /* veApi = await ethers.getContractFactory("VE_Api_V2");
         veApiContract = await veApi.deploy("0x3d6c56f6855b7Cc746fb80848755B0a9c3770122", viriContract.target, voterContract.target, votingEscrowContract.target);
  */
         //Deploy Minter
-        /* minterContract = await deployContract("Minter");
-        await minterContract.initialize(voterContract.target, votingEscrowContract.target, rewardsDistriburorContract.target)
- */
+        minter = await ethers.getContractFactory("Minter");
+        minterContract = minter.deploy(voterContract.target, votingEscrowContract.target, rewardsDistriburorContract.target)
 
+        //Deploy Multicall
+        multicall = await ethers.getContractFactory("VIRI_MULTICALL")
+        multicallContract = await multicall.deploy()
+
+        //Deploy claimAll
+        claimAllContract = await deployContract("ClaimAllImplementation")
+        await claimAllContract.initialize(votingEscrowContract.target, voterContract.target, pairFactoryContract.target, rewardsDistriburorContract)
+
+        //Deploy viriOracle
         //Internal and External Bribe deploy
         /* internalBribeContract = await deployContract("InternalBribe")
         await internalBribeContract.initialize(voterContract.target, contractAddresses)
@@ -208,6 +217,12 @@ describe("Deploy Test", function(){
             console.log("veApi: ", veApiContract.target)
             console.log("Gauge: ", gaugeContract.target)
         });
+
+        it("13 ", async function () {
+            console.log("Minter: ", minterContract.target)
+            console.log("multicall: ", multicallContract.target)
+            console.log("claim all: ", claimAllContract.target)
+        })
 
         
 
