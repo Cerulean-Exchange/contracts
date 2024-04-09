@@ -24,183 +24,201 @@ async function main() {
         
     console.log("Desplegando contratos con la cuenta:", deployer.address);
 
+// Limpia el archivo o crea uno nuevo si no existe
+fs.writeFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), '');
+
     try{
         //Deploy Viri
         viriContract = await deployContract("Viri");
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `ViriContract: ${viriContract.target}\n`);
     }catch(error){
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar Vir", error);
     }
     
     try {
         //Deploy VeArtProxy
-        veArtProxy = await deployContract("VeArtProxy");    
+        veArtProxy = await deployContract("VeArtProxy");
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `veArtProxy: ${veArtProxy.target}\n`);    
     } catch (error) {
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar VeArt", error);
     }
     
     try {
         //Deploy Voting Escrow
         votingEscrow = await ethers.getContractFactory("VotingEscrow")
         votingEscrowContract = await votingEscrow.deploy(viriContract.target, veArtProxy.target)
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `votingEscrowContract: ${votingEscrowContract.target}\n`);
             
     } catch (error) {
-        console.log("Error al desplegar", error);            
+        console.log("Error al desplegar VE", error);            
     }
     
     try {
         //Deploy BribeFactory
         bribeFactory = await ethers.getContractFactory("BribeFactory")
         bribeFactoryContract = await bribeFactory.deploy();
-            
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `bribeFactoryContract: ${bribeFactoryContract.target}\n`);
     } catch (error) {
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar BribeFactory", error);
     }
     
     try {
         //Deploy Gauge Factory
         gaugeFactoryContract = await deployContract("GaugeFactory")
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `gaugeFactoryContract: ${gaugeFactoryContract.target}\n`);
     
     } catch (error) {
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar GaugeFactory", error);
     }
     
     try {
         //Deploy Pair Factroy
         pairFactoryContract = await deployContract("PairFactory");
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `pairFactoryContract: ${pairFactoryContract.target}\n`);
     
     } catch (error) {
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar Pair Factory", error);
     }
     
     try {
         //Deploy Voter
         voter= await ethers.getContractFactory("Voter");
         voterContract = await voter.deploy(votingEscrowContract.target, pairFactoryContract.target, gaugeFactoryContract.target, bribeFactoryContract.target)
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `voterContract: ${voterContract.target}\n`);
         //await voterContract.initialize(votingEscrowContract.target, pairFactoryContract.target, gaugeFactoryContract.target, bribeFactoryContract.target); 
 
     } catch (error) {
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar Voter", error);
     }
 
     try {
         //Deploy WrappedExternalBribeFactory
         WrappedExternalBribeFactory = await ethers.getContractFactory("WrappedExternalBribeFactory");
         WrappedExternalBribeFactoryContract = await WrappedExternalBribeFactory.deploy(voterContract.target);
-    
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `WrappedExternalBribeFactoryContract: ${WrappedExternalBribeFactoryContract.target}\n`);
     } catch (error) {
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar WEBF", error);
     }
     
     try {
         //Deploy veSplitter
         veSplitter = await ethers.getContractFactory("veSplitter");
         veSplitterContract = await veSplitter.deploy(voterContract.target);
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `veSplitterContract: ${veSplitterContract.target}\n`);
     
     } catch (error) {
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar veSplitter", error);
     }
     
     try {
         //Deploy WTCORE
         WTCore = await ethers.getContractFactory("WTCORE")
         WTCOREContract = await WTCore.deploy();
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `WTCOREContract: ${WTCOREContract.target}\n`);
     
     } catch (error) {
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar WTCORE", error);
     }
     
     try {
         //Deploy Router
         router = await ethers.getContractFactory("Router")
         routerContract = await router.deploy(pairFactoryContract.target, WTCOREContract.target)
-    
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `routerContract: ${routerContract.target}\n`);
     } catch (error) {
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar Router", error);
     }
     
     try {
         //Deploy Router2
         router2 = await ethers.getContractFactory("Router")
         router2Contract = await router2.deploy(pairFactoryContract.target, WTCOREContract.target)
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `router2Contract: ${router2Contract.target}\n`);
             
     } catch (error) {
-        console.log("Error al desplegar", error);            
+        console.log("Error al desplegar Router2", error);            
     }
     
     try {
         //Deploy ViriLibrary
         viriLibrary = await ethers.getContractFactory("ViriLibrary");
         viriLibraryContract =await viriLibrary.deploy(routerContract.target);
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `viriLibraryContract: ${viriLibraryContract.target}\n`);
     
     } catch (error) {
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar viriLibrary", error);
     }
     
     try {
         //Deploy WrappedExternalBribe2
         wrappedExternalBribe2 = await ethers.getContractFactory("WrappedExternalBribeV2")
         wrappedExternalBribe2Contract = await wrappedExternalBribe2.deploy(voterContract.target)
-
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `wrappedExternalBribe2Contract: ${wrappedExternalBribe2Contract.target}\n`);
         //Deploy WrappedExternalBribe
         wrappedExternalBribe = await ethers.getContractFactory("WrappedExternalBribe");
         wrappedExternalBribeContract = await wrappedExternalBribe.deploy(voterContract.target, wrappedExternalBribe2Contract.target);
-    
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `wrappedExternalBribeContract: ${wrappedExternalBribeContract.target}\n`);
     } catch (error) {
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar WEB", error);
     }
     
     try {
         //Deploy RewardsDistributor
         rewardsDistriburor = await ethers.getContractFactory("RewardsDistributor");
-        rewardsDistriburorContract = await rewardsDistriburor.deploy(votingEscrowContract.target) 
+        rewardsDistriburorContract = await rewardsDistriburor.deploy(votingEscrowContract.target)
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `rewardsDistributorContract: ${rewardsDistriburorContract.target}\n`); 
             
     } catch (error) {
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar RewardsDistributor", error);
     }
 
     try {
         //Deploy Minter
         minter = await ethers.getContractFactory("Minter");
         minterContract = minter.deploy(voterContract.target, votingEscrowContract.target, rewardsDistriburorContract.target)
-    
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `minterContract: ${minterContract.target}\n`);
     } catch (error) {
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar Minter", error);
     }
     
     try {
         //Deploy Multicall
         multicall = await ethers.getContractFactory("VIRI_MULTICALL")
         multicallContract = await multicall.deploy()
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `multicallContract: ${multicallContract.target}\n`);
     
     } catch (error) {
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar multicall", error);
     }
     
     try {
         //Deploy claimAll
         claimAllContract = await deployContract("ClaimAllImplementation")
         await claimAllContract.initialize(votingEscrowContract.target, voterContract.target, pairFactoryContract.target, rewardsDistriburorContract)
-    
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `claimAllContract: ${claimAllContract.target}\n`);
     } catch (error) {
-        console.log("Error al desplegar", error);
+        console.log("Error al desplegar claimall", error);
     }
 
     try {
         //Deploy USDC
         USDC = await ethers.getContractFactory("USDC")
         USDCContract = USDC.deploy();
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `USDCContract: ${USDCContract.target}\n`);
     } catch (error) {
-        console.log("Error al desplegar");
+        console.log("Error al desplegar USDC");
     }
 
     try {
+        //preguntar si hace falta agregar la direccion de usdt en core
         const oracleArgs = [USDCContract, /* reemplazar con WETH de core */];
         //Deploy viriOracle
         viriOracle = await ethers.getContractFactory("ViriTvlOracle");
         viriOracleContract = await viriOracle.deploy(oracleArgs,6)
+        fs.appendFileSync(path.join(__dirname, 'Test_2_Days_Contracs.txt'), `viriOracleContract: ${viriOracleContract.target}\n`);
     } catch (error) {
         
-        console.log("Error en el despliegue")
+        console.log("Error en el despliegue Oracle")
     }
     
 
