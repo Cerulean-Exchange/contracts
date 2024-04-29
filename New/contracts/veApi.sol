@@ -23,7 +23,7 @@ interface IEquilibreTvlOracle {
     function p_t_coin_usd(address) external view returns (uint256);
 }
 
-contract Equilibre_VE_Api is Ownable {
+contract Viri_VE_Api is Ownable {
     IERC20 public VIRI ;//= IERC20(0x3Fd3A0c85B70754eFc07aC9Ac0cbBDCe664865A6);
     IVoter public VOTER ;//= IVoter(0x4bebEB8188aEF8287f9a7d1E4f01d76cBE060d5b);
     IveNFT public veNFT ;//= IveNFT(0x8313f3551C4D3984FfbaDFb42f780D0c8763Ce94);

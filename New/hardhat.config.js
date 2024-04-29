@@ -1,4 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("@nomicfoundation/hardhat-verify");
 require("dotenv").config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -17,6 +18,30 @@ module.exports = {
       url: "https://rpc.coredao.org/",
       accounts: [process.env.PRIVATE_KEY],
     },
+  },
+  etherscan: {
+    apiKey: {
+      testnet: process.env.TESTNET_API_KEY,
+      /* mainnet: "api key" */
+    },
+    customChains: [
+      {
+        network: "testnet",
+        chainId: 1115,
+        urls: {
+          apiURL: "https://api.test.btcs.network/api",
+          browserURL: "https://scan.test.btcs.network/"
+        }
+      }/*,
+       {
+        network: "mainnet",
+        chainId: 1116,
+        urls: {
+          apiURL: "https://openapi.coredao.org/api",
+          browserURL: "https://scan.coredao.org/"
+        }
+      } */
+    ]
   },
   solidity: {
     version: "0.8.13",
