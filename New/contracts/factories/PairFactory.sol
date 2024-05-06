@@ -12,7 +12,7 @@ contract PairFactory is IPairFactory {
 
     uint256 public stableFee;
     uint256 public volatileFee;
-    uint256 public constant MAX_FEE = 200; // 2%
+    uint256 public constant MAX_FEE = 500; // 5%
     address public feeManager;
     address public pendingFeeManager;
 
