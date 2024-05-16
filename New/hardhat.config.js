@@ -22,7 +22,7 @@ module.exports = {
   etherscan: {
     apiKey: {
       testnet: process.env.TESTNET_API_KEY,
-      /* mainnet: "api key" */
+      mainnet: process.env.MAINNET_API_KEY
     },
     customChains: [
       {
@@ -32,7 +32,7 @@ module.exports = {
           apiURL: "https://api.test.btcs.network/api",
           browserURL: "https://scan.test.btcs.network/"
         }
-      }/*,
+      },
        {
         network: "mainnet",
         chainId: 1116,
@@ -40,7 +40,7 @@ module.exports = {
           apiURL: "https://openapi.coredao.org/api",
           browserURL: "https://scan.coredao.org/"
         }
-      } */
+      }
     ]
   },
   solidity: {
