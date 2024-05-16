@@ -27,18 +27,6 @@ async function main() {
 // Limpia el archivo o crea uno nuevo si no existe
 fs.writeFileSync(path.join(__dirname, 'mainnetContracts.txt'), '');
 
- try {
-    //Deploy veapi
-    veApi = await ethers.getContractFactory("Viri_VE_Api")
-                                      //address _oracle, address _pool2, address _viri, address _voter, address _ve
-    veApiContract = await veApi.deploy("0xDea7a52204461e5d7324E9300f3cAaA81cEc034F","0xb6A4891DBf867131AA61B10F48F3F595700A38a1","0x2D743F95f99e19366C2e52d00fE4718b14202e36","0xae7192C5c94a47B5747Cc8e462859462E49AebA7","0x7E4c0246B5b449a3a2eb04Bae68a29d6E2A36f52");
-    console.log(veApiContract)
-    fs.appendFileSync(path.join(__dirname, 'mainnetContracts.txt'), `veApiContract: ${veApiContract.target}\n`);
-} catch (error) {
-    console.log("Error al desplegar veApiContract", error);
-}
-
- 
 
 try{
         //Deploy Viri
@@ -123,9 +111,10 @@ try{
     
     try {
         //Deploy Router
+        let WCOREContract = "0x40375C92d9FAf44d2f9db9Bd9ba41a3317a2404f" //WCORE 0x40375C92d9FAf44d2f9db9Bd9ba41a3317a2404f
         router = await ethers.getContractFactory("Router")
         //Recibe address de pairFactory y la direccion de WTCORE
-        routerContract = await router.deploy(pairFactoryContract.target, "adressWTCORE")
+        routerContract = await router.deploy(pairFactoryContract.target, WCOREContract)
         fs.appendFileSync(path.join(__dirname, 'mainnetContracts.txt'), `routerContract: ${routerContract.target}\n`);
         console.log("routerContract: ", routerContract.target)
     } catch (error) {
@@ -135,8 +124,9 @@ try{
     try {
         //Deploy Router2
         router2 = await ethers.getContractFactory("Router2")
+        let WCOREContract = "0x40375C92d9FAf44d2f9db9Bd9ba41a3317a2404f" //WCORE 0x40375C92d9FAf44d2f9db9Bd9ba41a3317a2404f
         //Recibe address de pairFactory y la direccion de WTCORE
-        router2Contract = await router2.deploy(pairFactoryContract.target, "adressWTCORE")
+        router2Contract = await router2.deploy(pairFactoryContract.target, WCOREContract)
         fs.appendFileSync(path.join(__dirname, 'mainnetContracts.txt'), `router2Contract: ${router2Contract.target}\n`);
         console.log("router2Contract: ", router2Contract.target)
             
@@ -215,8 +205,10 @@ try{
 
     try {
         //preguntar si hace falta agregar la direccion de usdt en core
-        const USDTContract= "cambiarUSDTMainnet"
-        const oracleArgs = ["adressUSDCMainnet", "addressWTCORE", USDTContract];
+        const USDTContract= "0x900101d06A7426441Ae63e9AB3B9b0F63Be145F1" //USDT 0x900101d06A7426441Ae63e9AB3B9b0F63Be145F1
+        const USDCContract= "0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9" //USDC 0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9
+        let WCOREContract = "0x40375C92d9FAf44d2f9db9Bd9ba41a3317a2404f" //WCORE 0x40375C92d9FAf44d2f9db9Bd9ba41a3317a2404f
+        const oracleArgs = [USDCContract, WCOREContract, USDTContract];
         //Deploy viriOracle
         viriOracle = await ethers.getContractFactory("ViriTvlOracle");
         //Recibe un arreglo de direcciones y un entero
@@ -230,6 +222,18 @@ try{
 
     console.log("Todos los contratos han sido desplegados e inicializados correctamente");
 }
+
+//Esperar a que el equipo cree el pool
+/* try {
+    //Deploy veapi
+    veApi = await ethers.getContractFactory("Viri_VE_Api")
+                                      //address _oracle, address _pool2, address _viri, address _voter, address _ve
+    veApiContract = await veApi.deploy("0xDea7a52204461e5d7324E9300f3cAaA81cEc034F","0xb6A4891DBf867131AA61B10F48F3F595700A38a1","0x2D743F95f99e19366C2e52d00fE4718b14202e36","0xae7192C5c94a47B5747Cc8e462859462E49AebA7","0x7E4c0246B5b449a3a2eb04Bae68a29d6E2A36f52");
+    console.log(veApiContract)
+    fs.appendFileSync(path.join(__dirname, 'mainnetContracts.txt'), `veApiContract: ${veApiContract.target}\n`);
+} catch (error) {
+    console.log("Error al desplegar veApiContract", error);
+} */
 
 main()
     .then(() => process.exit(0))
