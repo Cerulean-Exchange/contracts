@@ -99,7 +99,7 @@ contract Voter is IVoter {
     }
 
     function reset(uint _tokenId) external onlyNewEpoch(_tokenId) {
-        require(IVotingEscrow(_ve).isApprovedOrOwner(msg.sender, _tokenId));
+        require(IVotingEscrow(_ve).isOwnerOnly(msg.sender, _tokenId));
         lastVoted[_tokenId] = block.timestamp;
         _reset(_tokenId);
         IVotingEscrow(_ve).abstain(_tokenId);

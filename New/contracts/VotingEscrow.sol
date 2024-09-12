@@ -275,6 +275,24 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         return _isApprovedOrOwner(_spender, _tokenId);
     }
 
+   /*
+    * @notice Checks if an address is the sole owner of a specific token
+    * @dev This function verifies ownership of a token without considering approvals
+    * @param _owner The address to check for ownership
+    * @param _tokenId The ID of the token to check
+    * @return bool Returns true if _owner is the owner of the token, false otherwise
+    */ 
+    function isOwnerOnly(address _owner, uint _tokenId) external view returns (bool) {
+        return _isOwnerOnly(_owner, _tokenId);
+    }
+
+    function _isOwnerOnly(address _owner, uint _tokenId) internal view returns (bool) {
+        address owner = idToOwner[_tokenId];
+        bool spenderIsOwner = owner == _owner;
+        return spenderIsOwner;
+    }
+
+
     /// @dev Exeute transfer of a NFT.
     ///      Throws unless `msg.sender` is the current owner, an authorized operator, or the approved
     ///      address for this NFT. (NOTE: `msg.sender` not allowed in internal function so pass `_sender`.)
@@ -289,7 +307,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
     ) internal {
         require(attachments[_tokenId] == 0 && !voted[_tokenId], "attached");
         // Check requirements
-        require(_isApprovedOrOwner(_sender, _tokenId));
+        require(_isOwnerOnly(_sender, _tokenId));
         // Clear approval. Throws if `_from` is not the current owner
         _clearApproval(_from, _tokenId);
         // Remove NFT. Throws if `_tokenId` is not a valid NFT
@@ -498,7 +516,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
     }
 
     function _burn(uint _tokenId) internal {
-        require(_isApprovedOrOwner(msg.sender, _tokenId), "caller is not owner nor approved");
+        require(_isOwnerOnly(msg.sender, _tokenId), "caller is not owner nor approved");
 
         address owner = ownerOf(_tokenId);
 
@@ -1065,11 +1083,17 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         attachments[_tokenId] = attachments[_tokenId] - 1;
     }
 
+   /**
+     * @notice Merges two locked token positions
+     * @dev This function allows the owner to combine two locked token positions
+     * @param _from The token ID of the source position
+     * @param _to The token ID of the destination position
+     */ 
     function merge(uint _from, uint _to) external {
         require(attachments[_from] == 0 && !voted[_from], "attached");
         require(_from != _to);
-        require(_isApprovedOrOwner(msg.sender, _from));
-        require(_isApprovedOrOwner(msg.sender, _to));
+        require(_isOwnerOnly(msg.sender, _from));
+        require(_isOwnerOnly(msg.sender, _to));
 
         LockedBalance memory _locked0 = locked[_from];
         LockedBalance memory _locked1 = locked[_to];
@@ -1094,7 +1118,14 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
 
     /// @notice A record of each accounts delegate
     mapping(address => address) private _delegates;
+
     uint public constant MAX_DELEGATES = 1024; // avoid too much gas
+
+    /* /// @notice A checkpoint for marking delegated tokenIds from a given timestamp
+    struct Checkpoint {
+        uint timestamp;
+        uint[] tokenIds;
+    } */
 
     /// @notice A record of delegated token checkpoints for each account, by index
     mapping(address => mapping(uint32 => Checkpoint)) public checkpoints;
@@ -1134,6 +1165,12 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         return votes;
     }
 
+  /** 
+    * @notice Finds the index of the most recent checkpoint before or equal to the given timestamp
+    * @param account The address of the account to search checkpoints for
+    * @param timestamp The timestamp to search the checkpoint for
+    * @return The index of the most recent checkpoint before or equal to the given timestamp
+    */ 
     function getPastVotesIndex(address account, uint timestamp) public view returns (uint32) {
         uint32 nCheckpoints = numCheckpoints[account];
         if (nCheckpoints == 0) {
@@ -1151,6 +1188,8 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
 
         uint32 lower = 0;
         uint32 upper = nCheckpoints - 1;
+
+        //Busqueda binaria
         while (upper > lower) {
             uint32 center = upper - (upper - lower) / 2; // ceil, avoiding overflow
             Checkpoint storage cp = checkpoints[account][center];
@@ -1165,11 +1204,18 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         return lower;
     }
 
+  /** 
+    * @notice Gets the vote balance of an account at a specific timestamp
+    * @param account The address of the account to get votes for
+    * @param timestamp The timestamp to get the votes for
+    * @return The vote balance of the account at the specified timestamp
+    */ 
     function getPastVotes(address account, uint timestamp)
         public
         view
         returns (uint)
     {
+        //llamado a getPastVotesIndex
         uint32 _checkIndex = getPastVotesIndex(account, timestamp);
         // Sum votes
         uint[] storage _tokenIds = checkpoints[account][_checkIndex].tokenIds;
@@ -1182,6 +1228,11 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         return votes;
     }
 
+  /**
+    * @notice Returns the total supply of votes at a specific timestamp
+    * @param timestamp The timestamp to get the total supply for
+    * @return The total supply of votes at the specified timestamp
+    */ 
     function getPastTotalSupply(uint256 timestamp) external view returns (uint) {
         return totalSupplyAtT(timestamp);
     }
@@ -1190,22 +1241,38 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
                              DAO VOTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
+
+  /** 
+    * @notice Moves the delegates of a token from one address to another
+    * @param srcRep The address of the current representative
+    * @param dstRep The address of the new representative
+    * @param _tokenId The ID of the token being moved
+    */ 
     function _moveTokenDelegates(
         address srcRep,
         address dstRep,
         uint _tokenId
     ) internal {
         if (srcRep != dstRep && _tokenId > 0) {
-            if (srcRep != address(0)) {
+
+            //Supongamos que srcRepOld contiene los tokenIds [1, 2, 3, 4]
+            //y el tokenId que se está moviendo es 3. Después de ejecutar la función,
+            //el nuevo array (srcRepNew) para el nuevo checkpoint de srcRep será [1, 2, 4].
+
+            //Actualizo la wallet de donde se van a mover los delegados
+            if (srcRep != address(0)) { 
+
                 uint32 srcRepNum = numCheckpoints[srcRep];
-                uint[] storage srcRepOld = srcRepNum > 0
-                    ? checkpoints[srcRep][srcRepNum - 1].tokenIds
-                    : checkpoints[srcRep][0].tokenIds;
-                uint32 nextSrcRepNum = _findWhatCheckpointToWrite(srcRep);
+                uint[] storage srcRepOld = srcRepNum > 0    //Si tiene al menos 1 checkpoint 
+                    ? checkpoints[srcRep][srcRepNum - 1].tokenIds   //Se trae el array de tokensid del ultimo checkpoint
+                    : checkpoints[srcRep][0].tokenIds;  //Se trae el array de tokensid del primer checkpoint
+                uint32 nextSrcRepNum = _findWhatCheckpointToWrite(srcRep);  //Que checkpoint escribe
                 uint[] storage srcRepNew = checkpoints[srcRep][
                     nextSrcRepNum
-                ].tokenIds;
+                ].tokenIds; //Se trae el array de tokensids del nuevo checkpoint
+
                 // All the same except _tokenId
+                // Pasa todos los tokensids del array viejo al nuevo excepto el nuevo (_tokenId)
                 for (uint i = 0; i < srcRepOld.length; i++) {
                     uint tId = srcRepOld[i];
                     if (tId != _tokenId) {
@@ -1213,34 +1280,47 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
                     }
                 }
 
+                //Aumenta la cantidad de checkpoints en 1
                 numCheckpoints[srcRep] = srcRepNum + 1;
             }
 
+            //Actualizo la wallet a donde se van a mover los delegados
             if (dstRep != address(0)) {
+
                 uint32 dstRepNum = numCheckpoints[dstRep];
-                uint[] storage dstRepOld = dstRepNum > 0
-                    ? checkpoints[dstRep][dstRepNum - 1].tokenIds
-                    : checkpoints[dstRep][0].tokenIds;
-                uint32 nextDstRepNum = _findWhatCheckpointToWrite(dstRep);
+                uint[] storage dstRepOld = dstRepNum > 0    // Si tiene al menos 1 checkpoint
+                    ? checkpoints[dstRep][dstRepNum - 1].tokenIds   //Se trae el array de tokensid del ultimo checkpoint
+                    : checkpoints[dstRep][0].tokenIds;  //Se trae el array de tokensid del primer checkpoint
+                uint32 nextDstRepNum = _findWhatCheckpointToWrite(dstRep);  //Que checkpoint escribe
                 uint[] storage dstRepNew = checkpoints[dstRep][
                     nextDstRepNum
-                ].tokenIds;
+                ].tokenIds; //Se trae el array nuevo para guardar los tokens
+
                 // All the same plus _tokenId
+                // Chequeo para ver si no excede los delegados
                 require(
                     dstRepOld.length + 1 <= MAX_DELEGATES,
                     "dstRep would have too many tokenIds"
                 );
+
+                // Se copian todos los tokens ids del array viejo al nuevo array y se añade el token id que se esta moviendo
                 for (uint i = 0; i < dstRepOld.length; i++) {
                     uint tId = dstRepOld[i];
                     dstRepNew.push(tId);
                 }
                 dstRepNew.push(_tokenId);
 
+                ////Aumenta la cantidad de checkpoints en 1
                 numCheckpoints[dstRep] = dstRepNum + 1;
             }
         }
     }
 
+  /** 
+    * @notice Finds the correct checkpoint index to write
+    * @param account The address of the account to find the checkpoint for
+    * @return The correct checkpoint index to write
+    */ 
     function _findWhatCheckpointToWrite(address account)
         internal
         view
@@ -1259,23 +1339,48 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         }
     }
 
+  /** 
+    * @notice Moves all delegates of an owner from one address to another
+    * @param owner The address of the token owner
+    * @param srcRep The address of the current representative
+    * @param dstRep The address of the new representative
+    */ 
     function _moveAllDelegates(
         address owner,
         address srcRep,
         address dstRep
     ) internal {
         // You can only redelegate what you own
+
+        /* 
+        Supongamos que srcRepOld tiene los tokenIds [1, 2, 3, 4] y el owner posee los tokenIds 3 y 4.
+        El dstRepOld tiene los tokenIds [5, 6]. Después de ejecutar la función:
+
+        El nuevo array (srcRepNew) para el nuevo checkpoint de srcRep será [1, 2],
+         ya que los tokenIds 3 y 4 pertenecen al owner y se excluyen.
+
+        El nuevo array (dstRepNew) para el nuevo checkpoint de dstRep será [5, 6, 3, 4],
+         ya que se añaden los tokenIds 3 y 4 que pertenecen al owner.
+        
+         */
+
+
         if (srcRep != dstRep) {
+
+            //Actualizo la wallet de donde se van a mover los delegados
             if (srcRep != address(0)) {
+
                 uint32 srcRepNum = numCheckpoints[srcRep];
-                uint[] storage srcRepOld = srcRepNum > 0
-                    ? checkpoints[srcRep][srcRepNum - 1].tokenIds
-                    : checkpoints[srcRep][0].tokenIds;
-                uint32 nextSrcRepNum = _findWhatCheckpointToWrite(srcRep);
+                uint[] storage srcRepOld = srcRepNum > 0    //Si tiene al menos 1 checkpoint 
+                    ? checkpoints[srcRep][srcRepNum - 1].tokenIds   //Se trae el array de tokensid del ultimo checkpoint
+                    : checkpoints[srcRep][0].tokenIds;  //Se trae el array de tokensid del primer checkpoint
+                uint32 nextSrcRepNum = _findWhatCheckpointToWrite(srcRep);  //Que checkpoint escribe
                 uint[] storage srcRepNew = checkpoints[srcRep][
                     nextSrcRepNum
-                ].tokenIds;
+                ].tokenIds; //Se trae el array de tokensids del nuevo checkpoint
+
                 // All the same except what owner owns
+                // Pasa todos los tokensids del array viejo al nuevo excepto los que sean del owner enviado
                 for (uint i = 0; i < srcRepOld.length; i++) {
                     uint tId = srcRepOld[i];
                     if (idToOwner[tId] != owner) {
@@ -1283,30 +1388,41 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
                     }
                 }
 
+                //Aumenta la cantidad de checkpoints en 1
                 numCheckpoints[srcRep] = srcRepNum + 1;
             }
 
+            //Actualizo la wallet a donde se van a mover los delegados
             if (dstRep != address(0)) {
+
                 uint32 dstRepNum = numCheckpoints[dstRep];
-                uint[] storage dstRepOld = dstRepNum > 0
-                    ? checkpoints[dstRep][dstRepNum - 1].tokenIds
-                    : checkpoints[dstRep][0].tokenIds;
-                uint32 nextDstRepNum = _findWhatCheckpointToWrite(dstRep);
+                uint[] storage dstRepOld = dstRepNum > 0    // Si tiene al menos 1 checkpoint
+                    ? checkpoints[dstRep][dstRepNum - 1].tokenIds   //Se trae el array de tokensid del ultimo checkpoint
+                    : checkpoints[dstRep][0].tokenIds;  //Se trae el array de tokensid del primer checkpoint
+                uint32 nextDstRepNum = _findWhatCheckpointToWrite(dstRep);  //Que checkpoint escribe
                 uint[] storage dstRepNew = checkpoints[dstRep][
                     nextDstRepNum
-                ].tokenIds;
-                uint ownerTokenCount = ownerToNFTokenCount[owner];
+                ].tokenIds; //Se trae el array nuevo para guardar los tokens
+
+                uint ownerTokenCount = ownerToNFTokenCount[owner];  //La cantidad total de tokens que tiene el owner
+
+                // Chequeo para ver si no excede los delegados
                 require(
                     dstRepOld.length + ownerTokenCount <= MAX_DELEGATES,
                     "dstRep would have too many tokenIds"
                 );
+
                 // All the same
                 for (uint i = 0; i < dstRepOld.length; i++) {
                     uint tId = dstRepOld[i];
                     dstRepNew.push(tId);
                 }
                 // Plus all that's owned
+                // Se añaden todos los tokenIds que pertenecen al owner al nuevo array (dstRepNew).
                 for (uint i = 0; i < ownerTokenCount; i++) {
+                    //@dev Mapping from owner address to mapping of index to tokenIds
+                    //mapping(address => mapping(uint => uint)) internal ownerToNFTokenIdList;
+
                     uint tId = ownerToNFTokenIdList[owner][i];
                     dstRepNew.push(tId);
                 }
@@ -1316,6 +1432,11 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         }
     }
 
+  /**
+    * @notice Delegates the votes of a delegator to a delegatee
+    * @param delegator The address of the delegator
+    * @param delegatee The address of the delegatee
+    */
     function _delegate(address delegator, address delegatee) internal {
         /// @notice differs from `_delegate()` in `Comp.sol` to use `delegates` override method to simulate auto-delegation
         address currentDelegate = delegates(delegator);
@@ -1335,6 +1456,15 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         return _delegate(msg.sender, delegatee);
     }
 
+  /**
+    * @notice Allows votes to be delegated via signature
+    * @param delegatee The address to delegate votes to
+    * @param nonce The nonce for the signature
+    * @param expiry The expiration timestamp of the signature
+    * @param v The v component of the signature
+    * @param r The r component of the signature
+    * @param s The s component of the signature
+    */ 
     function delegateBySig(
         address delegatee,
         uint nonce,

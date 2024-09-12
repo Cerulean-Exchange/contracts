@@ -19,6 +19,7 @@ interface IVotingEscrow {
 
     function ownerOf(uint) external view returns (address);
     function isApprovedOrOwner(address, uint) external view returns (bool);
+    function isOwnerOnly(address, uint) external view returns (bool);
     function transferFrom(address, address, uint) external;
 
     function voting(uint tokenId) external;
